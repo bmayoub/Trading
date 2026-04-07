@@ -1,0 +1,80 @@
+import { ensureDb } from "@/lib/db";
+import { fetchCandles, fetchLatestClosedCandle } from "@/lib/exchange";
+import { evaluatePairAlerts } from "@/lib/alerts";
+import type { Candle, PairRow } from "@/lib/types";
+
+export async function getActivePairs() {
+  const db = ensureDb();
+  return db<PairRow[]>`select id, symbol, is_active from pairs where is_active = true order by id asc`;
+}
+
+export async function seedPairIfNeeded(pairId: number, symbol: string) {
+  const db = ensureDb();
+  const countRows = await db<{ count: number }[]>`select count(*)::int as count from candles where pair_id = ${pairId}`;
+  const count = countRows[0]?.count ?? 0;
+
+  if (count > 0) {
+    return { seeded: false, count };
+  }
+
+  const candles = await fetchCandles(symbol, 100);
+  for (const candle of candles) {
+    await db`
+      insert into candles (pair_id, open_time, open, high, low, close, volume)
+      values (${pairId}, ${candle.openTime}, ${candle.open}, ${candle.high}, ${candle.low}, ${candle.close}, ${candle.volume})
+      on conflict (pair_id, open_time) do nothing
+    `;
+  }
+
+  return { seeded: true, count: candles.length };
+}
+
+export async function syncPair(pairId: number, symbol: string) {
+  const db = ensureDb();
+  const latest = await fetchLatestClosedCandle(symbol);
+  if (!latest) return { inserted: false, pruned: false, alerts: [] as string[] };
+
+  const insertedRows = await db<{ id: number }[]>`
+    insert into candles (pair_id, open_time, open, high, low, close, volume)
+    values (${pairId}, ${latest.openTime}, ${latest.open}, ${latest.high}, ${latest.low}, ${latest.close}, ${latest.volume})
+    on conflict (pair_id, open_time) do nothing
+    returning id
+  `;
+
+  await db`
+    delete from candles
+    where id in (
+      select id
+      from candles
+      where pair_id = ${pairId}
+      order by open_time desc
+      offset 500
+    )
+  `;
+
+  const candles = await getCandlesForPair(pairId, 500);
+  const alerts = insertedRows.length > 0 ? await evaluatePairAlerts(pairId, symbol, candles) : [];
+
+  await db`
+    insert into sync_runs (pair_id, symbol, inserted_new, open_time)
+    values (${pairId}, ${symbol}, ${insertedRows.length > 0}, ${latest.openTime})
+  `;
+
+  return {
+    inserted: insertedRows.length > 0,
+    pruned: candles.length >= 500,
+    alerts
+  };
+}
+
+export async function getCandlesForPair(pairId: number, limit = 500): Promise<Candle[]> {
+  const db = ensureDb();
+  const rows = await db<Candle[]>`
+    select open_time as "openTime", open::float8 as open, high::float8 as high, low::float8 as low, close::float8 as close, volume::float8 as volume
+    from candles
+    where pair_id = ${pairId}
+    order by open_time asc
+    limit ${limit}
+  `;
+  return rows;
+}
