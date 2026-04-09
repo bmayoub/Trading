@@ -1,11 +1,13 @@
 import { ensureDb } from "@/lib/db";
+import { sortPairsByCurrencyPriority } from "@/lib/defaults";
 import { fetchCandles, fetchLatestClosedCandle } from "@/lib/exchange";
 import { evaluatePairAlerts } from "@/lib/alerts";
 import type { Candle, PairRow } from "@/lib/types";
 
 export async function getActivePairs() {
   const db = ensureDb();
-  return db<PairRow[]>`select id, symbol, is_active from pairs where is_active = true order by id asc`;
+  const pairs = await db<PairRow[]>`select id, symbol, is_active from pairs where is_active = true`;
+  return sortPairsByCurrencyPriority(pairs);
 }
 
 export async function seedPairIfNeeded(pairId: number, symbol: string) {

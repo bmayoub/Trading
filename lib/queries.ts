@@ -1,6 +1,7 @@
-import { ensureDb, sql, withDbFallback } from "@/lib/db";
+import { withDbFallback } from "@/lib/db";
 import { buildIndicatorSnapshot } from "@/lib/indicators";
 import { getCandlesForPair } from "@/lib/candles";
+import { sortPairsByCurrencyPriority } from "@/lib/defaults";
 import type { Candle } from "@/lib/types";
 
 export async function getDashboardSummary() {
@@ -28,10 +29,11 @@ export async function getDashboardSummary() {
 
 export async function getDashboardRows() {
   return withDbFallback(async (db) => {
-    const pairs = await db<{ id: number; symbol: string }[]>`select id, symbol from pairs where is_active = true order by symbol asc`;
+    const pairs = await db<{ id: number; symbol: string }[]>`select id, symbol from pairs where is_active = true`;
+    const sortedPairs = sortPairsByCurrencyPriority(pairs);
 
     return Promise.all(
-      pairs.map(async (pair) => {
+      sortedPairs.map(async (pair) => {
         const candles = await getCandlesForPair(pair.id, 500);
         const snapshot = buildIndicatorSnapshot(candles);
 
@@ -74,10 +76,9 @@ export async function getChartPairs() {
       select symbol
       from pairs
       where is_active = true
-      order by id asc
     `;
 
-    return rows.map((row) => row.symbol);
+    return sortPairsByCurrencyPriority(rows).map((row) => row.symbol);
   }, [] as string[]);
 }
 

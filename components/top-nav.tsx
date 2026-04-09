@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +14,7 @@ const items = [
 
 export function TopNav() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="topbar">
@@ -25,9 +27,26 @@ export function TopNav() {
           </span>
         </Link>
 
-        <nav className="topnav">
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={isOpen}
+          aria-controls="primary-nav"
+          onClick={() => setIsOpen((value) => !value)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <nav id="primary-nav" className={`topnav ${isOpen ? "open" : ""}`}>
           {items.map((item) => (
-            <Link key={item.href} href={item.href} className={pathname === item.href ? "active" : ""}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={pathname === item.href ? "active" : ""}
+              onClick={() => setIsOpen(false)}
+            >
               {item.label}
             </Link>
           ))}

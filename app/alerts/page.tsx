@@ -10,7 +10,7 @@ export default async function AlertsPage() {
     <div className="page-shell container">
       <PageTitle title="التنبيهات" subtitle="قواعد التنبيه المسجلة وسجل آخر الأحداث المرسلة." />
 
-      <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+      <div className="page-split-grid">
         <div className="card table-wrap">
           <h2>القواعد</h2>
           <table>

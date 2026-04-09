@@ -64,6 +64,26 @@ body { min-height: 100vh; }
   gap: 10px;
   flex-wrap: wrap;
 }
+.nav-toggle {
+  display: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-direction: column;
+  cursor: pointer;
+}
+.nav-toggle span {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
 .topnav a {
   padding: 10px 14px;
   border-radius: 999px;
@@ -84,6 +104,7 @@ body { min-height: 100vh; }
 .page-title p { margin: 6px 0 0; color: var(--muted); }
 .grid { display: grid; gap: 16px; }
 .grid.cards { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.page-split-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); }
 .card h3, .card h2 { margin-top: 0; }
 .kpi { font-size: 28px; font-weight: 700; margin: 8px 0; }
@@ -178,13 +199,13 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   padding: 24px;
 }
 .pair-switcher {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 10px;
-  justify-content: center;
   padding-bottom: 4px;
 }
 .pair-switcher button {
+  width: 100%;
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -207,10 +228,11 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   .container,
   .market-page { width: calc(100% - 24px); }
   .topbar-inner,
-  .market-stage-header { align-items: start; }
-  .topbar-inner,
   .market-stage-header,
   .page-title { flex-direction: column; }
+  .topbar-inner,
+  .market-stage-header { align-items: stretch; }
+  .page-split-grid { grid-template-columns: 1fr; }
   .market-stats { grid-template-columns: repeat(2, minmax(120px, 1fr)); width: 100%; min-width: 0; }
   .market-stage { min-height: auto; }
   .market-chart-frame,
@@ -219,8 +241,50 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 }
 @media (max-width: 640px) {
   .main { padding-top: 16px; }
-  .topnav { width: 100%; justify-content: flex-start; }
+  .topbar-inner { position: relative; min-height: auto; padding: 12px 0; }
+  .brand-mark { max-width: calc(100% - 60px); }
+  .brand-mark small { font-size: 12px; }
+  .nav-toggle { display: inline-flex; position: absolute; inset-inline-start: 0; top: 14px; }
+  .topnav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 56px;
+  }
+  .topnav.open { display: flex; }
+  .topnav a {
+    width: 100%;
+    text-align: center;
+    padding: 12px 14px;
+    border-color: var(--border);
+    background: rgba(255,255,255,0.03);
+  }
   .market-page { padding: 0 12px; }
-  .pair-switcher { justify-content: stretch; }
-  .pair-switcher button { flex: 1 1 calc(50% - 10px); }
+  .page-title h1 { font-size: 24px; }
+  .page-title p { font-size: 14px; }
+  .card { padding: 16px; border-radius: 18px; }
+  th, td { padding: 10px; font-size: 14px; }
+  .market-stage { gap: 12px; }
+  .market-stage-header h1 { font-size: clamp(26px, 8vw, 38px); }
+  .market-stage-header p { font-size: 14px; }
+  .market-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .market-stats div { padding: 12px; }
+  .market-stats strong { font-size: 18px; }
+  .market-chart-frame,
+  .chart-surface,
+  .chart-empty { min-height: 46vh; border-radius: 22px; }
+  .pair-switcher { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .pair-switcher button { padding: 11px 10px; font-size: 13px; }
+}
+@media (max-width: 420px) {
+  .container,
+  .market-page,
+  .topbar-inner { width: calc(100% - 20px); }
+  .market-stats { grid-template-columns: 1fr; }
+  .pair-switcher { grid-template-columns: 1fr; }
+  .market-chart-frame,
+  .chart-surface,
+  .chart-empty { min-height: 42vh; }
 }
