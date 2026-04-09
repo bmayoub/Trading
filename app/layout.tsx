@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/sidebar";
+import { TopNav } from "@/components/top-nav";
 
 export const metadata: Metadata = {
   title: "لوحة التداول",
@@ -11,12 +11,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ar" dir="rtl">
       <body>
-        <div className="layout">
-          <Sidebar />
-          <main className="main">
-            <div className="container">{children}</div>
-          </main>
-        </div>
+        <TopNav />
+        <main className="main">{children}</main>
       </body>
     </html>
   );

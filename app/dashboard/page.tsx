@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const rows = await getDashboardRows();
 
   return (
-    <>
+    <div className="page-shell container">
       <PageTitle title="لوحة أزواج الفوركس" subtitle="مؤشرات محسوبة على آخر 500 شمعة ساعة لكل زوج." />
       <div className="card table-wrap">
         <table>
@@ -47,6 +47,6 @@ export default async function DashboardPage() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

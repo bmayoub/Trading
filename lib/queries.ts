@@ -1,6 +1,7 @@
 import { ensureDb, sql, withDbFallback } from "@/lib/db";
 import { buildIndicatorSnapshot } from "@/lib/indicators";
 import { getCandlesForPair } from "@/lib/candles";
+import type { Candle } from "@/lib/types";
 
 export async function getDashboardSummary() {
   return withDbFallback(async (db) => {
@@ -65,4 +66,48 @@ export async function getRecentAlertEvents() {
     order by ae.created_at desc
     limit 20
   `, [] as { id: number; symbol: string; message: string; created_at: string }[]);
+}
+
+export async function getChartPairs() {
+  return withDbFallback(async (db) => {
+    const rows = await db<{ symbol: string }[]>`
+      select symbol
+      from pairs
+      where is_active = true
+      order by id asc
+    `;
+
+    return rows.map((row) => row.symbol);
+  }, [] as string[]);
+}
+
+export async function getCandlesBySymbol(symbol: string, limit = 500): Promise<Candle[]> {
+  return withDbFallback(async (db) => {
+    const pairRows = await db<{ id: number }[]>`
+      select id
+      from pairs
+      where symbol = ${symbol}
+      and is_active = true
+      limit 1
+    `;
+
+    const pairId = pairRows[0]?.id;
+    if (!pairId) {
+      return [];
+    }
+
+    return getCandlesForPair(pairId, limit);
+  }, [] as Candle[]);
+}
+
+export async function getHomeChartData() {
+  const pairs = await getChartPairs();
+  const initialSymbol = pairs[0] ?? null;
+  const initialCandles = initialSymbol ? await getCandlesBySymbol(initialSymbol) : [];
+
+  return {
+    pairs,
+    initialSymbol,
+    initialCandles
+  };
 }

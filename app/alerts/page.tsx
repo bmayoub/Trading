@@ -7,7 +7,7 @@ export default async function AlertsPage() {
   const [rules, events] = await Promise.all([getAlertRules(), getRecentAlertEvents()]);
 
   return (
-    <>
+    <div className="page-shell container">
       <PageTitle title="التنبيهات" subtitle="قواعد التنبيه المسجلة وسجل آخر الأحداث المرسلة." />
 
       <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
@@ -65,6 +65,6 @@ export default async function AlertsPage() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { PageTitle } from "@/components/header";
 
 export default function SettingsPage() {
   return (
-    <>
+    <div className="page-shell container">
       <PageTitle title="الإعدادات" subtitle="المتغيرات والخطوات المطلوبة قبل النشر على Vercel وربط المزامنة عبر GitHub Actions." />
       <div className="card">
         <h2>Environment Variables</h2>
@@ -39,6 +39,6 @@ CRON_SECRET=...`}</pre>
           <div>بعد كل تحديث: حساب المؤشرات ثم فحص التنبيهات وإرسال Telegram.</div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

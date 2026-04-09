@@ -5,7 +5,7 @@ import { ImportForm } from "@/app/import/import-form";
 
 export default function ImportPage() {
   return (
-    <>
+    <div className="page-shell container">
       <PageTitle title="استيراد CSV من MT5" subtitle="ارفع ملف الشموع من MT5 وسيتم إدخاله مباشرة إلى جدول candles." />
 
       <div className="card" style={{ marginBottom: 16 }}>
@@ -18,6 +18,6 @@ export default function ImportPage() {
       </div>
 
       <ImportForm />
-    </>
+    </div>
   );
 }

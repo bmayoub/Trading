@@ -10,6 +10,7 @@
     "db:check": "node scripts/check-db.mjs"
   },
   "dependencies": {
+    "lightweight-charts": "^5.1.0",
     "next": "14.2.25",
     "postgres": "^3.4.5",
     "react": "18.3.1",
