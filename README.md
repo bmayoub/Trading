@@ -73,7 +73,7 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3000/api/cron/
 - سيجلب شمعة جديدة فقط لكل زوج
 - ثم سيحذف الأقدم إذا صار العدد أكبر من 500
 
-مهم: لأن مزود البيانات لديه حد credits بالدقيقة، فإن Vercel Cron يشغّل المزامنة على 4 دفعات صغيرة بين الدقيقة 1 و4 من كل ساعة بدل محاولة مزامنة كل الأزواج دفعة واحدة.
+مهم: لأن مزود البيانات لديه حد credits بالدقيقة، فإن GitHub Actions يشغّل المزامنة على 4 دفعات صغيرة بين الدقيقة 1 و4 من كل ساعة بدل محاولة مزامنة كل الأزواج دفعة واحدة.
 
 ## 6) اختبار Telegram
 
@@ -126,8 +126,33 @@ curl http://localhost:3000/api/alerts/test-telegram
 1. ارفع المشروع إلى GitHub.
 2. اربطه مع Vercel.
 3. أضف Environment Variables نفسها.
-4. تأكد أن `vercel.json` موجود لتفعيل cron.
-5. بعد النشر، نفّذ SQL مرة واحدة.
+4. بعد النشر، نفّذ SQL مرة واحدة.
+
+## 10) تشغيل المزامنة عبر GitHub Actions
+
+هذا المشروع لم يعد يعتمد على Vercel Cron. بدلًا من ذلك، يستخدم workflow داخل GitHub Actions لاستدعاء endpoint الإنتاجي على 4 دفعات كل ساعة.
+
+أضف Secrets التالية في GitHub repository:
+
+- `APP_BASE_URL`
+  - مثال: `https://your-project.vercel.app`
+- `CRON_SECRET`
+  - يجب أن يطابق نفس القيمة الموجودة داخل Vercel Environment Variables
+
+الملف المستخدم هو:
+
+```text
+.github/workflows/sync-candles.yml
+```
+
+آلية العمل:
+
+- الدقيقة 1 من كل ساعة: batch 0
+- الدقيقة 2 من كل ساعة: batch 1
+- الدقيقة 3 من كل ساعة: batch 2
+- الدقيقة 4 من كل ساعة: batch 3
+
+ويمكن أيضًا تشغيله يدويًا من تبويب Actions داخل GitHub.
 
 ## ملاحظات مهمة
 

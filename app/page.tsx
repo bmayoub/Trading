@@ -34,7 +34,7 @@ export default async function HomePage() {
         <div className="card">
           <h3>آخر مزامنة</h3>
           <div className="kpi" style={{ fontSize: 20 }}>{summary.lastSync ?? "لا توجد بعد"}</div>
-          <div className="muted">يتم التحديث كل ساعة بواسطة Vercel Cron</div>
+          <div className="muted">يتم التحديث كل ساعة بواسطة GitHub Actions</div>
         </div>
       </div>
 

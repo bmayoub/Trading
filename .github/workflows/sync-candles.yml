@@ -1,0 +1,63 @@
+name: Sync Candles
+
+on:
+  schedule:
+    - cron: "1 * * * *"
+    - cron: "2 * * * *"
+    - cron: "3 * * * *"
+    - cron: "4 * * * *"
+  workflow_dispatch:
+    inputs:
+      batch_index:
+        description: "Batch index override"
+        required: false
+        default: ""
+      batch_size:
+        description: "Batch size override"
+        required: false
+        default: "7"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve batch index
+        id: batch
+        shell: bash
+        run: |
+          batch_index="${{ github.event.inputs.batch_index }}"
+
+          if [ -z "$batch_index" ]; then
+            case "${{ github.event.schedule }}" in
+              "1 * * * *") batch_index=0 ;;
+              "2 * * * *") batch_index=1 ;;
+              "3 * * * *") batch_index=2 ;;
+              "4 * * * *") batch_index=3 ;;
+              *) batch_index=0 ;;
+            esac
+          fi
+
+          echo "batch_index=$batch_index" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger sync endpoint
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BATCH_INDEX: ${{ steps.batch.outputs.batch_index }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size || '7' }}
+        shell: bash
+        run: |
+          if [ -z "$APP_BASE_URL" ]; then
+            echo "APP_BASE_URL secret is required" >&2
+            exit 1
+          fi
+
+          url="${APP_BASE_URL%/}/api/cron/sync-candles?batchIndex=${BATCH_INDEX}&batchSize=${BATCH_SIZE}"
+          echo "Calling $url"
+
+          curl \
+            --fail \
+            --show-error \
+            --silent \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "$url"

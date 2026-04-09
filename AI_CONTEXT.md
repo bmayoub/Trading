@@ -6,7 +6,7 @@
 - Type: Next.js 14 App Router application
 - UI language: Arabic
 - Layout direction: RTL
-- Deployment target: Vercel
+- Deployment target: Vercel for the app, GitHub Actions for scheduled sync calls
 - Domain: Forex monitoring, technical indicators, alerts, and Telegram notifications
 
 ## What This App Does
@@ -31,7 +31,7 @@ This project is a forex trading dashboard that:
 
 ## Main Backend Flow
 
-1. Cron route loads active pairs from the database.
+1. The scheduled sync endpoint loads active pairs from the database.
 2. For each pair, the app seeds 100 candles if the pair has no stored history.
 3. The app fetches the latest closed hourly candle from Twelve Data.
 4. If the candle is new, it is inserted into `candles`.
@@ -95,6 +95,7 @@ Important tables in `db/schema.sql`:
 - Most pages are marked `force-dynamic` and read live data from the database.
 - If Telegram credentials are missing, Telegram sends are skipped instead of failing the whole run.
 - The current active market integration is Twelve Data.
+- Production scheduling is intended to be handled by GitHub Actions hitting the sync endpoint in 4 hourly batches.
 - There is a known documentation mismatch in `app/settings/page.tsx`, which still mentions `BINANCE_BASE_URL`; the active code does not use Binance.
 
 ## Safe Assumptions For Future Agents
