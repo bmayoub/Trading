@@ -8,7 +8,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageTitle title="لوحة الأزواج" subtitle="مؤشرات محسوبة على آخر 500 شمعة ساعة لكل زوج." />
+      <PageTitle title="لوحة أزواج الفوركس" subtitle="مؤشرات محسوبة على آخر 500 شمعة ساعة لكل زوج." />
       <div className="card table-wrap">
         <table>
           <thead>

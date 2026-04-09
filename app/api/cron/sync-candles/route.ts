@@ -3,10 +3,44 @@ import { getActivePairs, seedPairIfNeeded, syncPair } from "@/lib/candles";
 
 export const dynamic = "force-dynamic";
 
+const DEFAULT_BATCH_SIZE = 7;
+const DEFAULT_BATCH_MINUTES = [1, 2, 3, 4];
+
 function isAuthorized(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) return true;
   return request.headers.get("authorization") === `Bearer ${cronSecret}`;
+}
+
+function parsePositiveInt(value: string | null, fallback: number) {
+  if (!value) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function getBatchInfo(request: NextRequest, totalPairs: number) {
+  const batchSize = parsePositiveInt(request.nextUrl.searchParams.get("batchSize"), DEFAULT_BATCH_SIZE);
+  const batchCount = Math.max(1, Math.ceil(totalPairs / batchSize));
+  const requestedBatchIndex = request.nextUrl.searchParams.get("batchIndex");
+
+  let batchIndex = 0;
+  if (requestedBatchIndex !== null) {
+    batchIndex = Number.parseInt(requestedBatchIndex, 10);
+  } else {
+    const currentMinute = new Date().getUTCMinutes();
+    const scheduledIndex = DEFAULT_BATCH_MINUTES.indexOf(currentMinute);
+    batchIndex = scheduledIndex >= 0 ? scheduledIndex : currentMinute % batchCount;
+  }
+
+  const normalizedBatchIndex = ((batchIndex % batchCount) + batchCount) % batchCount;
+  const offset = normalizedBatchIndex * batchSize;
+
+  return {
+    batchSize,
+    batchCount,
+    batchIndex: normalizedBatchIndex,
+    offset
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -16,15 +50,22 @@ export async function GET(request: NextRequest) {
 
   try {
     const pairs = await getActivePairs();
+    const batch = getBatchInfo(request, pairs.length);
+    const selectedPairs = pairs.slice(batch.offset, batch.offset + batch.batchSize);
     const results = [] as Array<Record<string, unknown>>;
 
-    for (const pair of pairs) {
+    for (const pair of selectedPairs) {
       const seeded = await seedPairIfNeeded(pair.id, pair.symbol);
       const synced = await syncPair(pair.id, pair.symbol);
       results.push({ symbol: pair.symbol, seeded, synced });
     }
 
-    return NextResponse.json({ ok: true, count: results.length, results });
+    return NextResponse.json({
+      ok: true,
+      count: results.length,
+      batch,
+      results
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });

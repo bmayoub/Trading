@@ -49,15 +49,17 @@ create table if not exists sync_runs (
 
 insert into pairs (symbol)
 values
-  ('BTCUSDT'), ('ETHUSDT'), ('BNBUSDT'), ('SOLUSDT'), ('XRPUSDT'), ('ADAUSDT'), ('DOGEUSDT'),
-  ('AVAXUSDT'), ('LINKUSDT'), ('DOTUSDT'), ('LTCUSDT'), ('TRXUSDT'), ('MATICUSDT'), ('ATOMUSDT'),
-  ('NEARUSDT'), ('APTUSDT'), ('ARBUSDT'), ('OPUSDT'), ('SUIUSDT'), ('INJUSDT'), ('FILUSDT'),
-  ('AAVEUSDT'), ('RUNEUSDT'), ('PEPEUSDT'), ('UNIUSDT'), ('ETCUSDT'), ('ICPUSDT'), ('ALGOUSDT')
+  ('EUR/USD'), ('GBP/USD'), ('USD/JPY'), ('USD/CHF'), ('AUD/USD'), ('USD/CAD'), ('NZD/USD'),
+  ('EUR/GBP'), ('EUR/JPY'), ('EUR/CHF'), ('EUR/AUD'), ('EUR/CAD'), ('EUR/NZD'),
+  ('GBP/JPY'), ('GBP/CHF'), ('GBP/AUD'), ('GBP/CAD'), ('GBP/NZD'),
+  ('AUD/JPY'), ('AUD/CHF'), ('AUD/CAD'), ('AUD/NZD'),
+  ('CAD/JPY'), ('CAD/CHF'), ('CHF/JPY'),
+  ('NZD/JPY'), ('NZD/CAD'), ('NZD/CHF')
 on conflict (symbol) do nothing;
 
 -- Example rules
 insert into alert_rules (pair_id, name, condition_type, params)
 select id, symbol || ' RSI < 30', 'rsi_below', '{"threshold": 30}'::jsonb
 from pairs
-where symbol in ('BTCUSDT', 'ETHUSDT')
+where symbol in ('EUR/USD', 'GBP/USD')
 on conflict do nothing;

@@ -41,6 +41,11 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 .badge.danger { background: rgba(255,107,107,.15); color: var(--danger); }
 .button { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 12px; background: var(--accent); color: white; border: none; cursor: pointer; }
 .code { background: #0a0f1d; border: 1px solid var(--border); border-radius: 14px; padding: 14px; overflow-x: auto; }
+.upload-box { display: grid; gap: 8px; padding: 16px; border: 1px dashed var(--border); border-radius: 16px; background: rgba(255,255,255,0.03); }
+.upload-box input[type="file"] { color: var(--muted); }
+.notice { border-radius: 14px; padding: 14px 16px; border: 1px solid var(--border); }
+.notice.success { background: rgba(56,211,159,.12); color: var(--success); }
+.notice.danger { background: rgba(255,107,107,.12); color: var(--danger); }
 @media (max-width: 920px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { border-inline-end: 0; border-bottom: 1px solid var(--border); }

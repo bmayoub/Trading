@@ -1,36 +1,71 @@
 import type { Candle } from "@/lib/types";
 
-const baseUrl = process.env.BINANCE_BASE_URL ?? "https://api.binance.com";
+const apiKey = process.env.TWELVE_DATA_API_KEY;
+const baseUrl = process.env.TWELVE_DATA_BASE_URL ?? "https://api.twelvedata.com";
 
-type BinanceKline = [
-  number, string, string, string, string, string, number, string, number, string, string, string
-];
+type TwelveDataCandle = {
+  datetime: string;
+  open: string;
+  high: string;
+  low: string;
+  close: string;
+  volume?: string;
+};
 
-function mapKline(kline: BinanceKline): Candle {
+type TwelveDataResponse = {
+  code?: number;
+  status?: string;
+  message?: string;
+  values?: TwelveDataCandle[];
+};
+
+function ensureApiKey() {
+  if (!apiKey) {
+    throw new Error("TWELVE_DATA_API_KEY is missing. Add it to your environment variables.");
+  }
+
+  return apiKey;
+}
+
+function mapCandle(candle: TwelveDataCandle): Candle {
   return {
-    openTime: new Date(kline[0]).toISOString(),
-    open: Number(kline[1]),
-    high: Number(kline[2]),
-    low: Number(kline[3]),
-    close: Number(kline[4]),
-    volume: Number(kline[5])
+    openTime: new Date(candle.datetime).toISOString(),
+    open: Number(candle.open),
+    high: Number(candle.high),
+    low: Number(candle.low),
+    close: Number(candle.close),
+    volume: Number(candle.volume ?? 0)
   };
 }
 
-export async function fetchCandles(symbol: string, limit: number): Promise<Candle[]> {
-  const url = `${baseUrl}/api/v3/klines?symbol=${symbol}&interval=1h&limit=${limit}`;
-  const response = await fetch(url, { cache: "no-store" });
+async function requestTimeSeries(symbol: string, outputsize: number): Promise<TwelveDataCandle[]> {
+  const url = new URL("/time_series", baseUrl);
+  url.searchParams.set("symbol", symbol);
+  url.searchParams.set("interval", "1h");
+  url.searchParams.set("outputsize", String(outputsize));
+  url.searchParams.set("timezone", "UTC");
+  url.searchParams.set("apikey", ensureApiKey());
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch candles for ${symbol}: ${response.status}`);
+  const response = await fetch(url.toString(), { cache: "no-store" });
+  const data = (await response.json()) as TwelveDataResponse;
+
+  if (!response.ok || !data.values?.length) {
+    throw new Error(data.message || `Failed to fetch candles for ${symbol}`);
   }
 
-  const data = (await response.json()) as BinanceKline[];
-  return data.map(mapKline);
+  return data.values;
+}
+
+export async function fetchCandles(symbol: string, limit: number): Promise<Candle[]> {
+  const values = await requestTimeSeries(symbol, limit);
+
+  return values
+    .slice()
+    .reverse()
+    .map(mapCandle);
 }
 
 export async function fetchLatestClosedCandle(symbol: string): Promise<Candle | null> {
-  const candles = await fetchCandles(symbol, 2);
-  if (candles.length < 2) return null;
-  return candles.at(-2) ?? null;
+  const candles = await fetchCandles(symbol, 1);
+  return candles.at(-1) ?? null;
 }

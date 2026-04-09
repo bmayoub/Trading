@@ -11,7 +11,7 @@ export default async function HomePage() {
     <>
       <PageTitle
         title="لوحة التداول"
-        subtitle="نظام جاهز لـ Vercel لحفظ آخر 500 شمعة ساعة لـ 28 زوجًا، حساب المؤشرات، وتشغيل التنبيهات."
+        subtitle="نظام جاهز لـ Vercel لحفظ آخر 500 شمعة ساعة لـ 28 زوج فوركس، حساب المؤشرات، وتشغيل التنبيهات."
         action={<Link className="button" href="/dashboard">فتح اللوحة</Link>}
       />
 

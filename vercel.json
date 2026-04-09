@@ -2,7 +2,19 @@
   "crons": [
     {
       "path": "/api/cron/sync-candles",
-      "schedule": "5 * * * *"
+      "schedule": "1 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-candles",
+      "schedule": "2 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-candles",
+      "schedule": "3 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-candles",
+      "schedule": "4 * * * *"
     }
   ]
 }
