@@ -43,14 +43,18 @@ const STATE_META = {
 
 type VisibleStrategyCurrencyState = keyof typeof STATE_META;
 
-const STATE_STRENGTH: Record<StrategyCurrencyState, number> = {
+const STATE_SCORE: Record<StrategyCurrencyState, number> = {
+  SOS: -2,
+  OS: -1,
   neutre: 0,
   OB: 1,
-  OS: 1,
   SOB: 2,
-  SOS: 2,
   unclassified: 0
 };
+
+function getStateMagnitude(state: StrategyCurrencyState) {
+  return Math.abs(STATE_SCORE[state] ?? 0);
+}
 
 function getPairCurrencies(symbol: string) {
   const [baseCurrency = "", quoteCurrency = ""] = symbol.split("/");
@@ -70,8 +74,8 @@ function getVisibleState(state: StrategyCurrencyState): VisibleStrategyCurrencyS
 }
 
 function getDominantState(baseState: StrategyCurrencyState, quoteState: StrategyCurrencyState): VisibleStrategyCurrencyState {
-  const baseStrength = STATE_STRENGTH[baseState] ?? 0;
-  const quoteStrength = STATE_STRENGTH[quoteState] ?? 0;
+  const baseStrength = getStateMagnitude(baseState);
+  const quoteStrength = getStateMagnitude(quoteState);
 
   if (baseStrength > quoteStrength) {
     return getVisibleState(baseState);
@@ -167,21 +171,20 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
   const snapshotByCurrency = new Map(data.snapshots.map((snapshot) => [snapshot.currency, snapshot]));
   const getPairStrength = (symbol: string) => {
     const { baseCurrency, quoteCurrency } = getPairCurrencies(symbol);
+    const baseState = snapshotByCurrency.get(baseCurrency)?.state ?? "neutre";
+    const quoteState = snapshotByCurrency.get(quoteCurrency)?.state ?? "neutre";
 
-    return (
-      (snapshotByCurrency.get(baseCurrency)?.state ? STATE_STRENGTH[snapshotByCurrency.get(baseCurrency)!.state] : 0) +
-      (snapshotByCurrency.get(quoteCurrency)?.state ? STATE_STRENGTH[snapshotByCurrency.get(quoteCurrency)!.state] : 0)
-    );
+    return (STATE_SCORE[baseState] ?? 0) * (STATE_SCORE[quoteState] ?? 0);
   };
 
   const sortedPairs = [...data.selectedPairs]
-    .filter((symbol) => getPairStrength(symbol) > 1)
+    .filter((symbol) => getPairStrength(symbol) < 0)
     .sort((leftSymbol, rightSymbol) => {
       const leftStrength = getPairStrength(leftSymbol);
       const rightStrength = getPairStrength(rightSymbol);
 
-      if (rightStrength !== leftStrength) {
-        return rightStrength - leftStrength;
+      if (leftStrength !== rightStrength) {
+        return leftStrength - rightStrength;
       }
 
       return leftSymbol.localeCompare(rightSymbol);
@@ -224,7 +227,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
 
         <div>
           {sortedPairs.length === 0 ? (
-            <div className="watchlist-pair-empty">لا توجد أزواج بقوة أعلى من 1 الآن.</div>
+            <div className="watchlist-pair-empty">لا توجد أزواج بقيمة أقل من 0 الآن.</div>
           ) : sortedPairs.map((symbol) => {
             const { baseCurrency, quoteCurrency } = getPairCurrencies(symbol);
             const baseSnapshot = snapshotByCurrency.get(baseCurrency);
@@ -245,14 +248,14 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
                   </div>
 
                   <div className="watchlist-strip-stat">
-                    <span className="label">القوة</span>
-                    <span className="value">{pairStrength}/4</span>
+                    <span className="label">قيمة الزوج</span>
+                    <span className="value">{pairStrength}</span>
                   </div>
 
                   <div className="watchlist-strip-strength">
                     <div className="watchlist-strip-meter">
-                      <span className={`watchlist-strip-fill ${baseState === "neutre" ? "neutre" : STATE_META[baseState].accentClass} ${STATE_STRENGTH[baseState] > 0 ? "active" : ""}`} />
-                      <span className={`watchlist-strip-fill ${quoteState === "neutre" ? "neutre" : STATE_META[quoteState].accentClass} ${STATE_STRENGTH[quoteState] > 0 ? "active" : ""}`} />
+                      <span className={`watchlist-strip-fill ${baseState === "neutre" ? "neutre" : STATE_META[baseState].accentClass} ${getStateMagnitude(baseState) > 0 ? "active" : ""}`} />
+                      <span className={`watchlist-strip-fill ${quoteState === "neutre" ? "neutre" : STATE_META[quoteState].accentClass} ${getStateMagnitude(quoteState) > 0 ? "active" : ""}`} />
                     </div>
                     <div className="watchlist-strip-caption">
                       <span>{baseCurrency} {STATE_META[baseState].label}</span>
