@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActivePairs, seedPairIfNeeded, syncPair } from "@/lib/candles";
+import { refreshStoredFotsiSeries } from "@/lib/fotsi";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,8 @@ export async function GET(request: NextRequest) {
       const synced = await syncPair(pair.id, pair.symbol);
       results.push({ symbol: pair.symbol, seeded, synced });
     }
+
+    await refreshStoredFotsiSeries();
 
     return NextResponse.json({
       ok: true,

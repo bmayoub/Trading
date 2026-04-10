@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { refreshStoredFotsiSeries } from "@/lib/fotsi";
 import { importMt5CsvText } from "@/lib/mt5-import";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,11 @@ export async function POST(request: Request) {
 
     const text = await file.text();
     const result = await importMt5CsvText(text);
+
+    if (result.importedRows > 0) {
+      await refreshStoredFotsiSeries();
+    }
+
     return NextResponse.json({ ok: true, result });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
