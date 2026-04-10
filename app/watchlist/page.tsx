@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import { WatchlistPanel } from "@/components/watchlist-panel";
 import { PageTitle } from "@/components/header";

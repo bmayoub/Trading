@@ -30,6 +30,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
   const chartRef = useRef<IChartApi | null>(null);
   const currencySeriesRefs = useRef<Partial<Record<FotsiCurrency, ISeriesApi<"Line">>>>({});
   const levelSeriesRefs = useRef<Record<string, ISeriesApi<"Line">>>({});
+  const resizeFrameRef = useRef(0);
   const [labels, setLabels] = useState<FotsiLabel[]>([]);
   const chartData = useMemo(
     () => order.map((currency) => ({
@@ -53,7 +54,9 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
   const primaryTimeline = useMemo(() => chartData.find((item) => item.points.length > 0)?.points ?? [], [chartData]);
 
   useEffect(() => {
-    let animationFrame = 0;
+    if (!containerRef.current) {
+      return undefined;
+    }
 
     const updateLabels = () => {
       const container = containerRef.current;
@@ -80,13 +83,9 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
     };
 
     const scheduleLabels = () => {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(updateLabels);
+      cancelAnimationFrame(resizeFrameRef.current);
+      resizeFrameRef.current = requestAnimationFrame(updateLabels);
     };
-
-    if (!containerRef.current) {
-      return undefined;
-    }
 
     const chart = createChart(containerRef.current, {
       layout: {
@@ -150,7 +149,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
     scheduleLabels();
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      cancelAnimationFrame(resizeFrameRef.current);
       resizeObserver.disconnect();
       chart.remove();
       chartRef.current = null;
@@ -158,11 +157,11 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
       levelSeriesRefs.current = {};
       setLabels([]);
     };
-  }, [chartData, colors, order]);
+  }, [colors, order]);
 
   useEffect(() => {
     if (!chartRef.current) {
-      return;
+      return undefined;
     }
 
     for (const item of chartData) {
@@ -171,7 +170,36 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
     for (const level of LEVELS) {
       levelSeriesRefs.current[String(level)]?.setData(primaryTimeline.map((point) => ({ time: point.time, value: level })));
     }
-    chartRef.current?.timeScale().fitContent();
+    chartRef.current.timeScale().fitContent();
+
+    cancelAnimationFrame(resizeFrameRef.current);
+    resizeFrameRef.current = requestAnimationFrame(() => {
+      const container = containerRef.current;
+
+      if (!container) {
+        return;
+      }
+
+      const nextLabels = chartData.flatMap((item, index) => {
+        const latestValue = item.latestValue;
+        const seriesApi = currencySeriesRefs.current[item.currency];
+        if (latestValue === null || !seriesApi) {
+          return [];
+        }
+
+        const coordinate = seriesApi.priceToCoordinate(latestValue);
+        const fallbackTop = 24 + index * 28;
+        const top = coordinate === null ? fallbackTop : Math.max(16, Math.min(container.clientHeight - 16, coordinate));
+
+        return [{ currency: item.currency, color: item.color, top }];
+      });
+
+      setLabels(nextLabels);
+    });
+
+    return () => {
+      cancelAnimationFrame(resizeFrameRef.current);
+    };
   }, [chartData, primaryTimeline]);
 
   return (

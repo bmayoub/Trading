@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 import { PageTitle } from "@/components/header";
 import { ImportForm } from "@/app/import/import-form";

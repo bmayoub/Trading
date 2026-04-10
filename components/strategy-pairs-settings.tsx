@@ -45,9 +45,7 @@ export function StrategyPairsSettings({ strategyLabel, strategyKey, allPairs, in
       setError(null);
 
       try {
-        const response = await fetch(`/api/settings/strategy-pairs?strategyKey=${encodeURIComponent(strategyKey)}`, {
-          cache: "no-store"
-        });
+        const response = await fetch(`/api/settings/strategy-pairs?strategyKey=${encodeURIComponent(strategyKey)}`);
         const data = (await response.json()) as { ok: boolean; error?: string; symbols?: string[] };
 
         if (!response.ok || !data.ok) {

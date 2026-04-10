@@ -1,7 +1,9 @@
+import { unstable_cache } from "next/cache";
 import { withDbFallback } from "@/lib/db";
-import { getCandlesForPair } from "@/lib/candles";
 import { sortPairsByCurrencyPriority } from "@/lib/defaults";
 import type { Candle } from "@/lib/types";
+
+const CHART_REVALIDATE_SECONDS = 3600;
 
 export async function getDashboardSummary() {
   return withDbFallback(async (db) => {
@@ -46,44 +48,68 @@ export async function getRecentAlertEvents() {
 }
 
 export async function getChartPairs() {
-  return withDbFallback(async (db) => {
-    const rows = await db<{ symbol: string }[]>`
-      select symbol
-      from pairs
-      where is_active = true
-    `;
+  return unstable_cache(
+    () => withDbFallback(async (db) => {
+      const rows = await db<{ symbol: string }[]>`
+        select symbol
+        from pairs
+        where is_active = true
+      `;
 
-    return sortPairsByCurrencyPriority(rows).map((row) => row.symbol);
-  }, [] as string[]);
+      return sortPairsByCurrencyPriority(rows).map((row) => row.symbol);
+    }, [] as string[]),
+    ["chart-pairs"],
+    {
+      revalidate: CHART_REVALIDATE_SECONDS,
+      tags: ["chart-pairs"]
+    }
+  )();
 }
 
 export async function getCandlesBySymbol(symbol: string, limit = 500): Promise<Candle[]> {
-  return withDbFallback(async (db) => {
-    const pairRows = await db<{ id: number }[]>`
-      select id
-      from pairs
-      where symbol = ${symbol}
-      and is_active = true
-      limit 1
-    `;
+  return unstable_cache(
+    () => withDbFallback(async (db) => {
+      const rows = await db<Candle[]>`
+        select latest.open_time::text as "openTime", latest.open::float8 as open, latest.high::float8 as high, latest.low::float8 as low, latest.close::float8 as close, latest.volume::float8 as volume
+        from (
+          select c.open_time, c.open, c.high, c.low, c.close, c.volume
+          from candles c
+          join pairs p on p.id = c.pair_id
+          where p.symbol = ${symbol}
+            and p.is_active = true
+          order by c.open_time desc
+          limit ${limit}
+        ) latest
+        order by latest.open_time asc
+      `;
 
-    const pairId = pairRows[0]?.id;
-    if (!pairId) {
-      return [];
+      return rows;
+    }, [] as Candle[]),
+    ["chart-candles", symbol, String(limit)],
+    {
+      revalidate: CHART_REVALIDATE_SECONDS,
+      tags: ["home-chart-data", "chart-candles", `chart-candles:${symbol}`]
     }
-
-    return getCandlesForPair(pairId, limit);
-  }, [] as Candle[]);
+  )();
 }
 
 export async function getHomeChartData() {
-  const pairs = await getChartPairs();
-  const initialSymbol = pairs[0] ?? null;
-  const initialCandles = initialSymbol ? await getCandlesBySymbol(initialSymbol) : [];
+  return unstable_cache(
+    async () => {
+      const pairs = await getChartPairs();
+      const initialSymbol = pairs[0] ?? null;
+      const initialCandles = initialSymbol ? await getCandlesBySymbol(initialSymbol) : [];
 
-  return {
-    pairs,
-    initialSymbol,
-    initialCandles
-  };
+      return {
+        pairs,
+        initialSymbol,
+        initialCandles
+      };
+    },
+    ["home-chart-data"],
+    {
+      revalidate: CHART_REVALIDATE_SECONDS,
+      tags: ["home-chart-data", "chart-pairs"]
+    }
+  )();
 }

@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 import { MarketChart } from "@/components/market-chart";
 import { getHomeChartData } from "@/lib/queries";

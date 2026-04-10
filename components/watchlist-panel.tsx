@@ -109,9 +109,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
       setError(null);
 
       try {
-        const response = await fetch(`/api/watchlist?strategyKey=${encodeURIComponent(strategyKey)}`, {
-          cache: "no-store"
-        });
+        const response = await fetch(`/api/watchlist?strategyKey=${encodeURIComponent(strategyKey)}`);
         const payload = (await response.json()) as { ok: boolean; error?: string; data?: WatchlistData };
 
         if (!response.ok || !payload.ok || !payload.data) {

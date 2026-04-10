@@ -1,10 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { CandlestickSeries, LineSeries, createChart, type CandlestickData, type IChartApi, type ISeriesApi, type LineData, type Time, type UTCTimestamp } from "lightweight-charts";
-import { FotsiChart } from "@/components/fotsi-chart";
 import type { FotsiCurrency, FotsiSeries } from "@/lib/fotsi";
 import type { Candle } from "@/lib/types";
+
+const FotsiChart = dynamic(() => import("@/components/fotsi-chart").then((module) => module.FotsiChart), {
+  ssr: false,
+  loading: () => <div className="indicator-panel-empty">جارٍ تجهيز شارت FOTSI...</div>
+});
 
 type ChartResponse = {
   ok: boolean;
@@ -232,6 +237,7 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
   const r2SeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   const s2SeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   const hoveredCandleRef = useRef<HoveredCandle | null>(null);
+  const loadedCandlesRef = useRef(new Map<string, Candle[]>());
   const initialPricePrecisionRef = useRef(getPricePrecision(initialSymbol));
   const [selectedSymbol, setSelectedSymbol] = useState(initialSymbol);
   const [loadingSymbol, setLoadingSymbol] = useState<string | null>(null);
@@ -240,13 +246,25 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
   const [error, setError] = useState<string | null>(null);
   const [showEma50And100, setShowEma50And100] = useState(true);
   const [showMrcOuterBands, setShowMrcOuterBands] = useState(true);
-  const [showFotsi, setShowFotsi] = useState(true);
+  const [showFotsi, setShowFotsi] = useState(false);
   const [fotsiSeries, setFotsiSeries] = useState<FotsiSeries | null>(null);
   const [fotsiLoading, setFotsiLoading] = useState(false);
   const [fotsiError, setFotsiError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const pricePrecision = getPricePrecision(selectedSymbol);
-  const pairRows = groupPairs(pairs);
+  const pairRows = useMemo(() => groupPairs(pairs), [pairs]);
+
+  useEffect(() => {
+    if (initialSymbol && initialCandles.length > 0) {
+      loadedCandlesRef.current.set(initialSymbol, initialCandles);
+    }
+  }, [initialCandles, initialSymbol]);
+
+  useEffect(() => {
+    if (selectedSymbol) {
+      loadedCandlesRef.current.set(selectedSymbol, candles);
+    }
+  }, [candles, selectedSymbol]);
 
   const loadFotsiIfNeeded = useCallback(async (force = false) => {
     if ((fotsiSeries || fotsiLoading) && !force) {
@@ -257,7 +275,7 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
     setFotsiError(null);
 
     try {
-      const response = await fetch("/api/chart/fotsi", { cache: "no-store" });
+      const response = await fetch("/api/chart/fotsi");
       const data = (await response.json()) as FotsiSeriesResponse;
 
       if (!response.ok || !data.ok) {
@@ -610,12 +628,19 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
 
                     setLoadingSymbol(pair);
                     setHoveredCandle(null);
+                    hoveredCandleRef.current = null;
                     setError(null);
 
+                    const cachedCandles = loadedCandlesRef.current.get(pair);
+                    if (cachedCandles) {
+                      setSelectedSymbol(pair);
+                      setCandles(cachedCandles);
+                      setLoadingSymbol(null);
+                      return;
+                    }
+
                     startTransition(async () => {
-                      const response = await fetch(`/api/chart/candles?symbol=${encodeURIComponent(pair)}`, {
-                        cache: "no-store"
-                      });
+                      const response = await fetch(`/api/chart/candles?symbol=${encodeURIComponent(pair)}`);
                       const data = (await response.json()) as ChartResponse;
 
                       if (!response.ok || !data.ok) {
@@ -625,8 +650,11 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
                       }
 
                       setHoveredCandle(null);
+                      hoveredCandleRef.current = null;
                       setSelectedSymbol(pair);
-                      setCandles(data.candles ?? []);
+                      const nextCandles = data.candles ?? [];
+                      loadedCandlesRef.current.set(pair, nextCandles);
+                      setCandles(nextCandles);
                       setLoadingSymbol(null);
                     });
                   }}

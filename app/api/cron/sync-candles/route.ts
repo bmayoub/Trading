@@ -1,3 +1,4 @@
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { getActivePairs, seedPairIfNeeded, syncPair } from "@/lib/candles";
 import { refreshStoredFotsiSeries } from "@/lib/fotsi";
@@ -62,6 +63,15 @@ export async function GET(request: NextRequest) {
     }
 
     await refreshStoredFotsiSeries();
+    revalidateTag("home-chart-data", "max");
+    revalidateTag("chart-pairs", "max");
+    revalidateTag("chart-candles", "max");
+    for (const pair of selectedPairs) {
+      revalidateTag(`chart-candles:${pair.symbol}`, "max");
+    }
+    revalidateTag(`watchlist:strategy_1`, "max");
+    revalidatePath("/");
+    revalidatePath("/watchlist");
 
     return NextResponse.json({
       ok: true,

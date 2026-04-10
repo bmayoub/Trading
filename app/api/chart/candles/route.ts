@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCandlesBySymbol } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function GET(request: NextRequest) {
   const symbol = request.nextUrl.searchParams.get("symbol");
