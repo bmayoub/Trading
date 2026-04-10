@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#790010",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "on-error": "#490006",
+                        "inverse-surface": "#fcf9f8",
+                        "surface-dim": "#0e0e0e",
+                        "on-primary-fixed": "#004820",
+                        "surface-container-highest": "#262626",
+                        "inverse-primary": "#006e35",
+                        "outline-variant": "#484847",
+                        "surface-container-high": "#20201f",
+                        "surface-container-low": "#131313",
+                        "surface-bright": "#2c2c2c",
+                        "error-dim": "#d7383b",
+                        "tertiary": "#ff716c",
+                        "secondary-container": "#0058ca",
+                        "tertiary-fixed": "#ff928c",
+                        "on-secondary-fixed": "#003076",
+                        "on-tertiary": "#490006",
+                        "background": "#0e0e0e",
+                        "primary": "#00E676",
+                        "on-background": "#ffffff",
+                        "primary-dim": "#24f07e",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "surface-container": "#1a1a1a",
+                        "outline": "#767575",
+                        "on-error-container": "#ffa8a3",
+                        "tertiary-container": "#f94d4e",
+                        "on-tertiary-fixed": "#3a0004",
+                        "on-surface": "#ffffff",
+                        "surface-container-lowest": "#000000",
+                        "on-surface-variant": "#adaaaa",
+                        "inverse-on-surface": "#565555",
+                        "primary-fixed": "#00E676",
+                        "tertiary-fixed-dim": "#ff7b75",
+                        "tertiary-dim": "#ff716c",
+                        "secondary-dim": "#0f6df3",
+                        "surface": "#0e0e0e",
+                        "on-primary-container": "#004f24",
+                        "primary-fixed-dim": "#24f07e",
+                        "secondary": "#6e9bff",
+                        "on-primary": "#005d2c",
+                        "error": "#ff716c",
+                        "primary-container": "#13ea79",
+                        "on-secondary": "#001d4e",
+                        "error-container": "#9f0519",
+                        "on-tertiary-container": "#110000",
+                        "on-primary-fixed-variant": "#006832",
+                        "on-secondary-container": "#f7f7ff",
+                        "surface-tint": "#00E676",
+                        "secondary-fixed": "#c0d1ff",
+                        "surface-variant": "#262626"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Be Vietnam Pro"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "arabic": ["IBM Plex Sans Arabic"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+        }
+        .signal-strip-hover:hover {
+            background-color: #1a1a1a;
+            transform: translateX(-4px);
+        }
+        .strength-block {
+            height: 4px;
+            width: 100%;
+            border-radius: 1px;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+<main class="max-w-7xl mx-auto pt-12 px-8 pb-12">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h1 class="text-3xl font-black mb-2 text-on-background">قائمة المراقبة النشطة</h1>
+<p class="text-on-surface-variant">تحليل الإشارات الفورية والسيولة السوقية</p>
+</div>
+<div class="flex gap-3">
+<div class="bg-surface-container-low px-4 py-2 rounded-lg border-r-2 border-primary">
+<div class="text-[10px] text-on-surface-variant">سوق مفتوح</div>
+<div class="text-sm font-bold">14:23:45 GMT</div>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-lg border-r-2 border-tertiary">
+<div class="text-[10px] text-on-surface-variant">تنبيهات نشطة</div>
+<div class="text-sm font-bold">04 إشارات</div>
+</div>
+</div>
+</div>
+<!-- Signal Strips Container -->
+<div class="space-y-3">
+<!-- Signal Strip 1: SOS (Strong Buy) -->
+<div class="group flex items-stretch h-14 bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant/10 signal-strip-hover transition-all duration-300 cursor-pointer">
+<div class="w-24 bg-surface-container-highest flex items-center justify-center border-l border-outline-variant/15">
+<span class="text-lg font-bold">EUR/USD</span>
+</div>
+<div class="flex-1 flex items-center px-6 gap-6">
+<div class="flex-1 grid grid-cols-2 gap-px h-2 rounded-full overflow-hidden bg-surface-container-lowest">
+<div class="bg-primary shadow-[0_0_12px_rgba(0,230,118,0.4)]"></div>
+<div class="bg-primary/30"></div>
+</div>
+<div class="flex items-center gap-8 min-w-[300px]">
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">السعر الحالي</div>
+<div class="text-sm font-mono font-bold">1.08421</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">التغير</div>
+<div class="text-sm font-mono font-bold text-primary">+0.42%</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded border-r-2 border-primary">
+<span class="text-[10px] font-bold text-primary">SOS</span>
+<span class="text-[10px] text-on-surface">شراء قوي</span>
+</div>
+</div>
+</div>
+<div class="w-12 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+</div>
+<!-- Signal Strip 2: SOB (Strong Sell) -->
+<div class="group flex items-stretch h-14 bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant/10 signal-strip-hover transition-all duration-300 cursor-pointer">
+<div class="w-24 bg-surface-container-highest flex items-center justify-center border-l border-outline-variant/15">
+<span class="text-lg font-bold">GBP/JPY</span>
+</div>
+<div class="flex-1 flex items-center px-6 gap-6">
+<div class="flex-1 grid grid-cols-2 gap-px h-2 rounded-full overflow-hidden bg-surface-container-lowest">
+<div class="bg-error/30"></div>
+<div class="bg-error shadow-[0_0_12px_rgba(255,113,108,0.4)]"></div>
+</div>
+<div class="flex items-center gap-8 min-w-[300px]">
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">السعر الحالي</div>
+<div class="text-sm font-mono font-bold">190.122</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">التغير</div>
+<div class="text-sm font-mono font-bold text-error">-0.85%</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded border-r-2 border-error">
+<span class="text-[10px] font-bold text-error">SOB</span>
+<span class="text-[10px] text-on-surface">بيع قوي</span>
+</div>
+</div>
+</div>
+<div class="w-12 flex items-center justify-center text-on-surface-variant group-hover:text-error transition-colors">
+<span class="material-symbols-outlined">trending_down</span>
+</div>
+</div>
+<!-- Signal Strip 3: Neutral -->
+<div class="group flex items-stretch h-14 bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant/10 signal-strip-hover transition-all duration-300 cursor-pointer">
+<div class="w-24 bg-surface-container-highest flex items-center justify-center border-l border-outline-variant/15">
+<span class="text-lg font-bold">USD/CAD</span>
+</div>
+<div class="flex-1 flex items-center px-6 gap-6">
+<div class="flex-1 grid grid-cols-2 gap-px h-2 rounded-full overflow-hidden bg-surface-container-lowest">
+<div class="bg-secondary/40"></div>
+<div class="bg-secondary/40"></div>
+</div>
+<div class="flex items-center gap-8 min-w-[300px]">
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">السعر الحالي</div>
+<div class="text-sm font-mono font-bold">1.35210</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">التغير</div>
+<div class="text-sm font-mono font-bold text-secondary">0.00%</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded border-r-2 border-secondary">
+<span class="text-[10px] font-bold text-secondary">NEU</span>
+<span class="text-[10px] text-on-surface">متعادل</span>
+</div>
+</div>
+</div>
+<div class="w-12 flex items-center justify-center text-on-surface-variant group-hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">swap_horiz</span>
+</div>
+</div>
+<!-- Signal Strip 4: OS (Buy) -->
+<div class="group flex items-stretch h-14 bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant/10 signal-strip-hover transition-all duration-300 cursor-pointer">
+<div class="w-24 bg-surface-container-highest flex items-center justify-center border-l border-outline-variant/15">
+<span class="text-lg font-bold">XAU/USD</span>
+</div>
+<div class="flex-1 flex items-center px-6 gap-6">
+<div class="flex-1 grid grid-cols-2 gap-px h-2 rounded-full overflow-hidden bg-surface-container-lowest">
+<div class="bg-primary-dim shadow-[0_0_8px_rgba(36,240,126,0.3)]"></div>
+<div class="bg-surface-container-highest"></div>
+</div>
+<div class="flex items-center gap-8 min-w-[300px]">
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">السعر الحالي</div>
+<div class="text-sm font-mono font-bold">2034.45</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">التغير</div>
+<div class="text-sm font-mono font-bold text-primary-dim">+1.12%</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded border-r-2 border-primary-dim">
+<span class="text-[10px] font-bold text-primary-dim">OS</span>
+<span class="text-[10px] text-on-surface">إشارة شراء</span>
+</div>
+</div>
+</div>
+<div class="w-12 flex items-center justify-center text-on-surface-variant group-hover:text-primary-dim transition-colors">
+<span class="material-symbols-outlined">keyboard_double_arrow_up</span>
+</div>
+</div>
+<!-- Signal Strip 5: OB (Sell) -->
+<div class="group flex items-stretch h-14 bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant/10 signal-strip-hover transition-all duration-300 cursor-pointer">
+<div class="w-24 bg-surface-container-highest flex items-center justify-center border-l border-outline-variant/15">
+<span class="text-lg font-bold">AUD/USD</span>
+</div>
+<div class="flex-1 flex items-center px-6 gap-6">
+<div class="flex-1 grid grid-cols-2 gap-px h-2 rounded-full overflow-hidden bg-surface-container-lowest">
+<div class="bg-surface-container-highest"></div>
+<div class="bg-tertiary shadow-[0_0_8px_rgba(255,113,108,0.3)]"></div>
+</div>
+<div class="flex items-center gap-8 min-w-[300px]">
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">السعر الحالي</div>
+<div class="text-sm font-mono font-bold">0.65432</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-on-surface-variant uppercase">التغير</div>
+<div class="text-sm font-mono font-bold text-tertiary">-0.15%</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1 rounded border-r-2 border-tertiary">
+<span class="text-[10px] font-bold text-tertiary">OB</span>
+<span class="text-[10px] text-on-surface">إشارة بيع</span>
+</div>
+</div>
+</div>
+<div class="w-12 flex items-center justify-center text-on-surface-variant group-hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined">keyboard_double_arrow_down</span>
+</div>
+</div>
+</div>
+<!-- Major Currency Strength Section -->
+<div class="mt-12 rounded-xl p-8 border border-outline-variant/10 bg-transparent">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-xl font-bold flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                    قوة العملات الرئيسية
+                </h2>
+<span class="text-xs text-on-surface-variant px-3 py-1 bg-surface-container-highest rounded-full border border-outline-variant/20">تحديث فوري للسوق</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<!-- USD -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-primary/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">USD</span>
+<div class="flex items-center gap-1 bg-primary text-black px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">north_east</span>
+<span>+0.45%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface">+92</span>
+<span class="text-[10px] text-primary"><div class="flex items-center gap-1 text-primary"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<!-- EUR -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-primary-dim/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">EUR</span>
+<div class="flex items-center gap-1 bg-primary-dim text-black px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">north_east</span>
+<span>+0.28%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface">+65</span>
+<span class="text-[10px] text-primary-dim"><div class="flex items-center gap-1 text-primary-dim"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary-dim rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- GBP -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-secondary/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">GBP</span>
+<div class="flex items-center gap-1 bg-primary text-black px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">north_east</span>
+<span>+0.05%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface">+12</span>
+<span class="text-[10px] text-on-surface-variant"><div class="flex items-center gap-1 text-on-surface-variant"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 40%"></div>
+</div>
+</div>
+<!-- JPY -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-error/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">JPY</span>
+<div class="flex items-center gap-1 bg-error text-white px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">south_east</span>
+<span>-0.62%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface text-error">-88</span>
+<span class="text-[10px] text-error"><div class="flex items-center gap-1 text-error"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<!-- AUD -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-tertiary/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">AUD</span>
+<div class="flex items-center gap-1 bg-error text-white px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">south_east</span>
+<span>-0.15%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface text-tertiary">-45</span>
+<span class="text-[10px] text-tertiary"><div class="flex items-center gap-1 text-tertiary"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 30%"></div>
+</div>
+</div>
+<!-- CAD -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-secondary/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">CAD</span>
+<div class="flex items-center gap-1 bg-outline-variant text-white px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">horizontal_rule</span>
+<span>0.00%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface">00</span>
+<span class="text-[10px] text-on-surface-variant"><div class="flex items-center gap-1 text-on-surface-variant"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-secondary/40 rounded-full" style="width: 50%"></div>
+</div>
+</div>
+<!-- CHF -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-primary-dim/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">CHF</span>
+<div class="flex items-center gap-1 bg-primary-dim text-black px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">north_east</span>
+<span>+0.31%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface">+74</span>
+<span class="text-[10px] text-primary-dim"><div class="flex items-center gap-1 text-primary-dim"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary-dim rounded-full" style="width: 74%"></div>
+</div>
+</div>
+<!-- NZD -->
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/20 hover:border-error/40 transition-colors group">
+<div class="flex justify-between items-start mb-3">
+<span class="font-bold text-lg">NZD</span>
+<div class="flex items-center gap-1 bg-error text-white px-2 py-0.5 rounded-full text-[10px] font-black">
+<span class="material-symbols-outlined text-[12px] font-black">south_east</span>
+<span>-0.58%</span>
+</div>
+</div>
+<div class="flex flex-col items-center mb-4">
+<span class="text-3xl font-black text-on-surface text-error">-82</span>
+<span class="text-[10px] text-error"><div class="flex items-center gap-1 text-error"><span class="text-sm font-bold">اليوم</span></div></span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 18%"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

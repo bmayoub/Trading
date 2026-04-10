@@ -4,7 +4,7 @@ import { TopNav } from "@/components/top-nav";
 
 export const metadata: Metadata = {
   title: "لوحة التداول",
-  description: "لوحة لمتابعة آخر 500 شمعة ساعة للفوركس، المؤشرات، والتنبيهات"
+  description: "لوحة لمتابعة آخر 500 شمعة ساعة للفوركس، المؤشرات، وقائمة المراقبة"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

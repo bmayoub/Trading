@@ -279,35 +279,35 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
 
     const chart = createChart(containerRef.current, {
       layout: {
-        background: { color: "#09111f" },
-        textColor: "#d9e2ff",
-        fontFamily: "Segoe UI, Tahoma, sans-serif"
+        background: { color: "#131313" },
+        textColor: "#ffffff",
+        fontFamily: "IBM Plex Sans Arabic, Segoe UI, Tahoma, sans-serif"
       },
       grid: {
-        vertLines: { color: "rgba(120, 140, 180, 0.12)" },
-        horzLines: { color: "rgba(120, 140, 180, 0.12)" }
+        vertLines: { color: "rgba(72, 72, 71, 0.18)" },
+        horzLines: { color: "rgba(72, 72, 71, 0.18)" }
       },
       rightPriceScale: {
-        borderColor: "rgba(120, 140, 180, 0.25)"
+        borderColor: "rgba(72, 72, 71, 0.24)"
       },
       timeScale: {
-        borderColor: "rgba(120, 140, 180, 0.25)",
+        borderColor: "rgba(72, 72, 71, 0.24)",
         timeVisible: true,
         secondsVisible: false
       },
       crosshair: {
-        vertLine: { color: "rgba(255,255,255,0.28)" },
-        horzLine: { color: "rgba(255,255,255,0.18)" }
+        vertLine: { color: "rgba(255,255,255,0.22)" },
+        horzLine: { color: "rgba(255,255,255,0.14)" }
       }
     });
 
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#1fcf90",
-      downColor: "#f35f74",
-      borderUpColor: "#1fcf90",
-      borderDownColor: "#f35f74",
-      wickUpColor: "#1fcf90",
-      wickDownColor: "#f35f74",
+      upColor: "#24f07e",
+      downColor: "#ff716c",
+      borderUpColor: "#24f07e",
+      borderDownColor: "#ff716c",
+      wickUpColor: "#24f07e",
+      wickDownColor: "#ff716c",
       priceFormat: {
         type: "price",
         precision: initialPricePrecisionRef.current,
