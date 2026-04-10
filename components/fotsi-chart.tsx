@@ -56,7 +56,9 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
     let animationFrame = 0;
 
     const updateLabels = () => {
-      if (!containerRef.current) {
+      const container = containerRef.current;
+
+      if (!container) {
         return;
       }
 
@@ -69,7 +71,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
 
         const coordinate = seriesApi.priceToCoordinate(latestValue);
         const fallbackTop = 24 + index * 28;
-        const top = coordinate === null ? fallbackTop : Math.max(16, Math.min(containerRef.current.clientHeight - 16, coordinate));
+        const top = coordinate === null ? fallbackTop : Math.max(16, Math.min(container.clientHeight - 16, coordinate));
 
         return [{ currency: item.currency, color: item.color, top }];
       });

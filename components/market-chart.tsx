@@ -264,7 +264,7 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
         throw new Error(data.error ?? "تعذر تحميل مؤشر FOTSI.");
       }
 
-      setFotsiSeries(data.series ?? {});
+      setFotsiSeries(data.series ?? null);
     } catch (fetchError) {
       setFotsiError(fetchError instanceof Error ? fetchError.message : "تعذر تحميل مؤشر FOTSI.");
     } finally {

@@ -32,6 +32,12 @@ export type StrategyWatchlistData = {
   radarSignals: RadarSignal[];
 };
 
+type SaveStrategyPairsResult = {
+  ok: boolean;
+  symbols: string[];
+  error?: string;
+};
+
 function normalizePairSelection(symbols: string[], allowedPairs: string[]) {
   const allowedSet = new Set(allowedPairs);
   return sortPairsByCurrencyPriority([...new Set(symbols)].filter((symbol) => allowedSet.has(symbol)));
@@ -92,11 +98,15 @@ export async function getStrategyPairSymbols(strategyKey = STRATEGY_ONE_KEY) {
   }, [] as string[]);
 }
 
-export async function saveStrategyPairSymbols(symbols: string[], strategyKey = STRATEGY_ONE_KEY, strategyName = STRATEGY_ONE_NAME) {
+export async function saveStrategyPairSymbols(
+  symbols: string[],
+  strategyKey = STRATEGY_ONE_KEY,
+  strategyName = STRATEGY_ONE_NAME
+): Promise<SaveStrategyPairsResult> {
   const allowedPairs = await getSelectablePairs();
   const normalizedPairs = normalizePairSelection(symbols, allowedPairs);
 
-  return withDbFallback(async (db) => {
+  return withDbFallback<SaveStrategyPairsResult>(async (db) => {
     await db.begin(async (tx) => {
       const existing = await tx<{ id: number }[]>`
         select id

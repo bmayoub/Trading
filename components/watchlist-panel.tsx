@@ -41,6 +41,8 @@ const STATE_META = {
   SOS: { label: "SOS", accentClass: "sos", signalLabel: "شراء قوي", glyph: "⇈" }
 } as const;
 
+type VisibleStrategyCurrencyState = keyof typeof STATE_META;
+
 const STATE_STRENGTH: Record<StrategyCurrencyState, number> = {
   neutre: 0,
   OB: 1,
@@ -63,16 +65,20 @@ function isBearishState(state: StrategyCurrencyState) {
   return state === "OB" || state === "SOB";
 }
 
-function getDominantState(baseState: StrategyCurrencyState, quoteState: StrategyCurrencyState) {
+function getVisibleState(state: StrategyCurrencyState): VisibleStrategyCurrencyState {
+  return state in STATE_META ? (state as VisibleStrategyCurrencyState) : "neutre";
+}
+
+function getDominantState(baseState: StrategyCurrencyState, quoteState: StrategyCurrencyState): VisibleStrategyCurrencyState {
   const baseStrength = STATE_STRENGTH[baseState] ?? 0;
   const quoteStrength = STATE_STRENGTH[quoteState] ?? 0;
 
   if (baseStrength > quoteStrength) {
-    return baseState;
+    return getVisibleState(baseState);
   }
 
   if (quoteStrength > baseStrength) {
-    return quoteState;
+    return getVisibleState(quoteState);
   }
 
   if (baseStrength === 0) {
@@ -225,8 +231,8 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
             const { baseCurrency, quoteCurrency } = getPairCurrencies(symbol);
             const baseSnapshot = snapshotByCurrency.get(baseCurrency);
             const quoteSnapshot = snapshotByCurrency.get(quoteCurrency);
-            const baseState = baseSnapshot?.state ?? "neutre";
-            const quoteState = quoteSnapshot?.state ?? "neutre";
+            const baseState = getVisibleState(baseSnapshot?.state ?? "neutre");
+            const quoteState = getVisibleState(quoteSnapshot?.state ?? "neutre");
             const pairStrength = getPairStrength(symbol);
             const dominantState = getDominantState(baseState, quoteState);
             const dominantMeta = STATE_META[dominantState];
@@ -247,12 +253,12 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
 
                   <div className="watchlist-strip-strength">
                     <div className="watchlist-strip-meter">
-                      <span className={`watchlist-strip-fill ${baseState === "neutre" ? "neutre" : STATE_META[baseState as keyof typeof STATE_META].accentClass} ${STATE_STRENGTH[baseState] > 0 ? "active" : ""}`} />
-                      <span className={`watchlist-strip-fill ${quoteState === "neutre" ? "neutre" : STATE_META[quoteState as keyof typeof STATE_META].accentClass} ${STATE_STRENGTH[quoteState] > 0 ? "active" : ""}`} />
+                      <span className={`watchlist-strip-fill ${baseState === "neutre" ? "neutre" : STATE_META[baseState].accentClass} ${STATE_STRENGTH[baseState] > 0 ? "active" : ""}`} />
+                      <span className={`watchlist-strip-fill ${quoteState === "neutre" ? "neutre" : STATE_META[quoteState].accentClass} ${STATE_STRENGTH[quoteState] > 0 ? "active" : ""}`} />
                     </div>
                     <div className="watchlist-strip-caption">
-                      <span>{baseCurrency} {STATE_META[baseState as keyof typeof STATE_META]?.label ?? "NEU"}</span>
-                      <span>{quoteCurrency} {STATE_META[quoteState as keyof typeof STATE_META]?.label ?? "NEU"}</span>
+                      <span>{baseCurrency} {STATE_META[baseState].label}</span>
+                      <span>{quoteCurrency} {STATE_META[quoteState].label}</span>
                     </div>
                   </div>
                 </div>
@@ -271,7 +277,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
 
         <div className="watchlist-currency-grid">
           {strongestSnapshots.map((snapshot) => {
-            const meta = STATE_META[snapshot.state as keyof typeof STATE_META] ?? STATE_META.neutre;
+            const meta = STATE_META[getVisibleState(snapshot.state)];
             const roundedValue = snapshot.value === null ? "--" : `${Math.round(snapshot.value) >= 0 ? "+" : ""}${Math.round(snapshot.value)}`;
             const deltaText = snapshot.delta === null ? "0.00%" : `${snapshot.delta >= 0 ? "+" : ""}${snapshot.delta.toFixed(2)}%`;
             const barWidth = `${Math.min(100, Math.max(8, Math.abs(snapshot.value ?? 0)))}%`;
