@@ -276,6 +276,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
         <div className="watchlist-currency-grid">
           {strongestSnapshots.map((snapshot) => {
             const meta = STATE_META[getVisibleState(snapshot.state)];
+            const deltaTone = snapshot.delta === null ? "neutral" : snapshot.delta >= 0 ? "positive" : "negative";
             const roundedValue = snapshot.value === null ? "--" : `${Math.round(snapshot.value) >= 0 ? "+" : ""}${Math.round(snapshot.value)}`;
             const deltaText = snapshot.delta === null ? "0.00%" : `${snapshot.delta >= 0 ? "+" : ""}${snapshot.delta.toFixed(2)}%`;
             const barWidth = `${Math.min(100, Math.max(8, Math.abs(snapshot.value ?? 0)))}%`;
@@ -283,7 +284,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
             return (
               <article key={snapshot.currency} className="watchlist-currency-card">
                 <div className="watchlist-currency-card-top">
-                  <span className={`watchlist-currency-chip ${meta.accentClass}`}>{deltaText}</span>
+                  <span className={`watchlist-currency-chip ${deltaTone}`}>{deltaText}</span>
                   <span className="watchlist-currency-code">{snapshot.currency}</span>
                 </div>
 

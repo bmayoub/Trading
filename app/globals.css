@@ -402,17 +402,15 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   font-weight: 700;
   direction: ltr;
 }
-.watchlist-currency-chip.sos,
-.watchlist-currency-chip.os {
+.watchlist-currency-chip.positive {
   background: rgba(0, 230, 118, 0.18);
   color: var(--accent-2);
 }
-.watchlist-currency-chip.sob,
-.watchlist-currency-chip.ob {
+.watchlist-currency-chip.negative {
   background: rgba(255, 113, 108, 0.18);
   color: var(--danger);
 }
-.watchlist-currency-chip.neutre {
+.watchlist-currency-chip.neutral {
   background: rgba(110, 155, 255, 0.16);
   color: var(--accent);
 }

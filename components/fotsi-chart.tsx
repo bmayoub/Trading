@@ -53,6 +53,12 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
   );
   const primaryTimeline = useMemo(() => chartData.find((item) => item.points.length > 0)?.points ?? [], [chartData]);
 
+  const chartDataRef = useRef(chartData);
+
+  useEffect(() => {
+    chartDataRef.current = chartData;
+  }, [chartData]);
+
   useEffect(() => {
     if (!containerRef.current) {
       return undefined;
@@ -65,7 +71,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
         return;
       }
 
-      const nextLabels = chartData.flatMap((item, index) => {
+      const nextLabels = chartDataRef.current.flatMap((item, index) => {
         const latestValue = item.latestValue;
         const seriesApi = currencySeriesRefs.current[item.currency];
         if (latestValue === null || !seriesApi) {
