@@ -1,5 +1,4 @@
 import { withDbFallback } from "@/lib/db";
-import { buildIndicatorSnapshot } from "@/lib/indicators";
 import { getCandlesForPair } from "@/lib/candles";
 import { sortPairsByCurrencyPriority } from "@/lib/defaults";
 import type { Candle } from "@/lib/types";
@@ -25,30 +24,6 @@ export async function getDashboardSummary() {
     activeAlerts: 0,
     lastSync: null as string | null
   });
-}
-
-export async function getDashboardRows() {
-  return withDbFallback(async (db) => {
-    const pairs = await db<{ id: number; symbol: string }[]>`select id, symbol from pairs where is_active = true`;
-    const sortedPairs = sortPairsByCurrencyPriority(pairs);
-
-    return Promise.all(
-      sortedPairs.map(async (pair) => {
-        const candles = await getCandlesForPair(pair.id, 500);
-        const snapshot = buildIndicatorSnapshot(candles);
-
-        return {
-          symbol: pair.symbol,
-          candles: candles.length,
-          close: snapshot.lastClose,
-          rsi14: snapshot.rsi14,
-          ema20: snapshot.ema20,
-          ema50: snapshot.ema50,
-          trend: snapshot.trend
-        };
-      })
-    );
-  }, [] as Array<Record<string, string | number | null>>);
 }
 
 export async function getAlertRules() {

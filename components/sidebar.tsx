@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/", label: "الرئيسية" },
-  { href: "/dashboard", label: "لوحة الأزواج" },
   { href: "/alerts", label: "التنبيهات" },
   { href: "/import", label: "استيراد CSV" },
   { href: "/settings", label: "الإعدادات" }

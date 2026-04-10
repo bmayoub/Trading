@@ -31,6 +31,15 @@ string FormatDateTime(const datetime value)
    return TimeToString(value, TIME_DATE | TIME_MINUTES | TIME_SECONDS);
 }
 
+int GetSymbolDigits(const string brokerSymbol)
+{
+   long digits = 0;
+   if(SymbolInfoInteger(brokerSymbol, SYMBOL_DIGITS, digits) && digits > 0)
+      return (int)digits;
+
+   return _Digits;
+}
+
 int ExportSymbol(const int fileHandle, const string brokerSymbol, const int barsToExport)
 {
    MqlRates rates[];
@@ -48,6 +57,7 @@ int ExportSymbol(const int fileHandle, const string brokerSymbol, const int bars
       return 0;
 
    string appSymbol = NormalizeSymbol(brokerSymbol);
+   int symbolDigits = GetSymbolDigits(brokerSymbol);
    int rowsWritten = 0;
 
    for(int index = copied - 1; index >= startIndex; index--)
@@ -59,10 +69,10 @@ int ExportSymbol(const int fileHandle, const string brokerSymbol, const int bars
          appSymbol,
          "H1",
          FormatDateTime(rate.time),
-         DoubleToString(rate.open, _Digits),
-         DoubleToString(rate.high, _Digits),
-         DoubleToString(rate.low, _Digits),
-         DoubleToString(rate.close, _Digits),
+         DoubleToString(rate.open, symbolDigits),
+         DoubleToString(rate.high, symbolDigits),
+         DoubleToString(rate.low, symbolDigits),
+         DoubleToString(rate.close, symbolDigits),
          IntegerToString((int)rate.tick_volume),
          IntegerToString((int)rate.real_volume),
          IntegerToString((int)rate.spread)

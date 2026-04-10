@@ -72,11 +72,15 @@ export async function syncPair(pairId: number, symbol: string) {
 export async function getCandlesForPair(pairId: number, limit = 500): Promise<Candle[]> {
   const db = ensureDb();
   const rows = await db<Candle[]>`
-    select open_time as "openTime", open::float8 as open, high::float8 as high, low::float8 as low, close::float8 as close, volume::float8 as volume
-    from candles
-    where pair_id = ${pairId}
-    order by open_time asc
-    limit ${limit}
+    select latest.open_time as "openTime", latest.open::float8 as open, latest.high::float8 as high, latest.low::float8 as low, latest.close::float8 as close, latest.volume::float8 as volume
+    from (
+      select open_time, open, high, low, close, volume
+      from candles
+      where pair_id = ${pairId}
+      order by open_time desc
+      limit ${limit}
+    ) latest
+    order by latest.open_time asc
   `;
   return rows;
 }
