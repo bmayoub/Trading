@@ -1,4 +1,7 @@
 "use client";
+import dynamic from "next/dynamic";
+// تمت إزالة التكرار
+const MarketChart = dynamic(() => import("./market-chart").then(m => m.MarketChart), { ssr: false });
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -124,6 +127,10 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
     OS: true,
     neutre: true
   });
+  // إضافة تعريف المتغيرات المفقودة:
+  const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
+  const [chartCandles, setChartCandles] = useState<Record<string, any[]>>({ });
+  const [chartLoading, setChartLoading] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -265,21 +272,50 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
             const pairBias = getPairBias(baseState, quoteState);
             const biasMeta = PAIR_BIAS_META[pairBias];
 
+            const isExpanded = expandedSymbol === symbol;
+
             return (
-              <article key={symbol} className="watchlist-strip">
-                <div className="watchlist-strip-icon">{pairStrength}</div>
-                <div className="watchlist-strip-main">
-                  <div className={`watchlist-strip-badge ${biasMeta.accentClass}`}>
-                    <strong className={biasMeta.accentClass}>{biasMeta.label}</strong>
-                  </div>
-                  <div className="watchlist-strip-strength">
-                    <div className="watchlist-strip-meter">
-                      <span className={`watchlist-strip-fill ${biasMeta.accentClass} active`} style={{ width: getPairStrengthWidth(pairStrength) }} />
+              <div key={symbol}>
+                <article className="watchlist-strip" style={{ cursor: "pointer" }} onClick={async () => {
+                  if (isExpanded) {
+                    setExpandedSymbol(null);
+                  } else {
+                    setExpandedSymbol(symbol);
+                    if (!chartCandles[symbol]) {
+                      setChartLoading(symbol);
+                      try {
+                        const res = await fetch(`/api/chart/candles?symbol=${encodeURIComponent(symbol)}`);
+                        const data = await res.json();
+                        setChartCandles((prev) => ({ ...prev, [symbol]: data.candles || [] }));
+                      } finally {
+                        setChartLoading(null);
+                      }
+                    }
+                  }
+                }}>
+                  <div className="watchlist-strip-icon">{pairStrength}</div>
+                  <div className="watchlist-strip-main">
+                    <div className={`watchlist-strip-badge ${biasMeta.accentClass}`}>
+                      <strong className={biasMeta.accentClass}>{biasMeta.label}</strong>
+                    </div>
+                    <div className="watchlist-strip-strength">
+                      <div className="watchlist-strip-meter">
+                        <span className={`watchlist-strip-fill ${biasMeta.accentClass} active`} style={{ width: getPairStrengthWidth(pairStrength) }} />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="watchlist-strip-symbol">{symbol}</div>
-              </article>
+                  <div className="watchlist-strip-symbol">{symbol}</div>
+                </article>
+                {isExpanded && (
+                  <div className="watchlist-pair-chart" style={{ background: "#181c23", padding: 16, borderRadius: 8, margin: "8px 0" }}>
+                    {chartLoading === symbol ? (
+                      <div>جارٍ تحميل الشارت...</div>
+                    ) : (
+                      <MarketChart pairs={[symbol]} initialSymbol={symbol} initialCandles={chartCandles[symbol] || []} />
+                    )}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
