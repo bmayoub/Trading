@@ -357,6 +357,136 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   margin: 0;
   font-size: 22px;
 }
+.crypto-test-shell {
+  display: grid;
+  gap: 18px;
+}
+.crypto-test-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.crypto-test-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+}
+.crypto-test-status strong {
+  color: var(--text);
+}
+.crypto-test-minute-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+}
+.crypto-test-minute-control select {
+  min-width: 76px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card-strong);
+  color: var(--text);
+  font: inherit;
+}
+.crypto-test-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.crypto-test-card {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(110, 155, 255, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+    var(--card);
+  border: 1px solid var(--border);
+}
+.crypto-test-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.crypto-test-card-header h2 {
+  margin: 0;
+  font-size: 28px;
+  direction: ltr;
+}
+.crypto-test-symbol-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  direction: ltr;
+}
+.crypto-test-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  direction: ltr;
+}
+.crypto-test-price strong {
+  font-size: 42px;
+  line-height: 1;
+}
+.crypto-test-delta {
+  font-size: 16px;
+  font-weight: 700;
+}
+.crypto-test-delta.positive {
+  color: var(--success);
+}
+.crypto-test-delta.negative {
+  color: var(--danger);
+}
+.crypto-test-ohlc {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.crypto-test-ohlc-item {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  direction: ltr;
+}
+.crypto-test-ohlc-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.crypto-test-ohlc-item strong {
+  font-size: 18px;
+}
+.crypto-test-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+@media (max-width: 720px) {
+  .crypto-test-ohlc {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .watchlist-state-toggle {
   display: inline-flex;
   align-items: center;

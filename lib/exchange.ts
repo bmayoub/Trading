@@ -2,6 +2,7 @@ import type { Candle } from "@/lib/types";
 
 const apiKey = process.env.TWELVE_DATA_API_KEY;
 const baseUrl = process.env.TWELVE_DATA_BASE_URL ?? "https://api.twelvedata.com";
+const MARKET_FETCH_TIMEOUT_MS = 10000;
 
 type TwelveDataCandle = {
   datetime: string;
@@ -46,7 +47,10 @@ async function requestTimeSeries(symbol: string, outputsize: number): Promise<Tw
   url.searchParams.set("timezone", "UTC");
   url.searchParams.set("apikey", ensureApiKey());
 
-  const response = await fetch(url.toString(), { cache: "no-store" });
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+    signal: AbortSignal.timeout(MARKET_FETCH_TIMEOUT_MS)
+  });
   const data = (await response.json()) as TwelveDataResponse;
 
   if (!response.ok || !data.values?.length) {
@@ -66,6 +70,10 @@ export async function fetchCandles(symbol: string, limit: number): Promise<Candl
 }
 
 export async function fetchLatestClosedCandle(symbol: string): Promise<Candle | null> {
-  const candles = await fetchCandles(symbol, 1);
-  return candles.at(-1) ?? null;
+  const candles = await fetchCandles(symbol, 3);
+  const now = Date.now();
+
+  return candles
+    .filter((candle) => new Date(candle.openTime).getTime() + 60 * 60 * 1000 <= now)
+    .at(-1) ?? null;
 }

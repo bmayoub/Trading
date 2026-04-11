@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/", label: "الشارت" },
+  { href: "/crypto-test", label: "تجربة الكريبتو" },
   { href: "/watchlist", label: "الاستراتيجية 1" },
   { href: "/settings", label: "الإعدادات" }
 ];
