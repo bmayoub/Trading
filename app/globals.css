@@ -243,7 +243,7 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 }
 .watchlist-strip-main {
   display: grid;
-  grid-template-columns: 170px 100px 1fr;
+  grid-template-columns: 220px 120px 1fr;
   align-items: center;
   gap: 18px;
   padding: 0 22px;
@@ -251,47 +251,42 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 .watchlist-strip-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   justify-self: start;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 6px;
-  background: var(--card-strong);
-  font-size: 12px;
-  border-right: 2px solid transparent;
+  min-height: 56px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: center;
 }
 .watchlist-strip-badge.sos,
 .watchlist-strip-badge.os {
-  border-right-color: var(--accent-2);
+  background: linear-gradient(135deg, rgba(0, 230, 118, 0.9), rgba(0, 180, 95, 0.92));
 }
 .watchlist-strip-badge.sob,
 .watchlist-strip-badge.ob {
-  border-right-color: var(--danger);
+  background: linear-gradient(135deg, rgba(255, 113, 108, 0.92), rgba(214, 70, 64, 0.94));
 }
 .watchlist-strip-badge.neutre {
-  border-right-color: var(--accent);
+  background: linear-gradient(135deg, rgba(110, 155, 255, 0.9), rgba(61, 107, 214, 0.92));
 }
-.watchlist-strip-badge strong.sos,
-.watchlist-strip-badge strong.os {
-  color: var(--accent-2);
-}
-.watchlist-strip-badge strong.sob,
-.watchlist-strip-badge strong.ob {
-  color: var(--danger);
-}
-.watchlist-strip-badge strong.neutre {
-  color: var(--accent);
+.watchlist-strip-badge strong {
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 .watchlist-strip-stat {
   display: grid;
-  gap: 3px;
-}
-.watchlist-strip-stat .label {
-  font-size: 10px;
-  color: var(--muted);
+  justify-items: center;
 }
 .watchlist-strip-stat .value {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--text);
   direction: ltr;
 }
 .watchlist-strip-strength {
@@ -299,15 +294,15 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   gap: 8px;
 }
 .watchlist-strip-meter {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
+  display: flex;
   height: 10px;
   border-radius: 999px;
   overflow: hidden;
   background: #20201f;
 }
 .watchlist-strip-fill {
+  display: block;
+  height: 100%;
   opacity: 0.32;
 }
 .watchlist-strip-fill.active {
@@ -326,14 +321,6 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 .watchlist-strip-fill.neutre {
   background: var(--accent);
   box-shadow: 0 0 12px rgba(110, 155, 255, 0.22);
-}
-.watchlist-strip-caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 11px;
-  color: var(--muted);
-  direction: ltr;
 }
 .watchlist-pair-empty {
   display: grid;
@@ -359,9 +346,54 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   justify-content: space-between;
   gap: 16px;
 }
+.watchlist-currency-board-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .watchlist-currency-board-header h2 {
   margin: 0;
   font-size: 22px;
+}
+.watchlist-state-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 180ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.watchlist-state-toggle.active.os,
+.watchlist-state-toggle.active.sos {
+  background: rgba(0, 230, 118, 0.16);
+  color: var(--accent-2);
+  border-color: rgba(0, 230, 118, 0.3);
+}
+.watchlist-state-toggle.active.ob,
+.watchlist-state-toggle.active.sob {
+  background: rgba(255, 113, 108, 0.16);
+  color: var(--danger);
+  border-color: rgba(255, 113, 108, 0.3);
+}
+.watchlist-state-toggle.active.neutre {
+  background: rgba(110, 155, 255, 0.16);
+  color: var(--accent);
+  border-color: rgba(110, 155, 255, 0.3);
+}
+.watchlist-state-toggle.inactive {
+  opacity: 0.45;
+}
+.watchlist-state-toggle:hover {
+  opacity: 1;
 }
 .watchlist-currency-board-badge {
   display: inline-flex;
@@ -807,6 +839,8 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   .page-split-grid { grid-template-columns: 1fr; }
   .watchlist-strip { grid-template-columns: 72px 1fr 96px; }
   .watchlist-strip-main { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
+  .watchlist-currency-board-header { align-items: flex-start; flex-direction: column; }
+  .watchlist-currency-board-actions { justify-content: flex-start; }
   .watchlist-currency-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tv-readout { gap: 10px; font-size: 12px; }
   .indicator-bar { flex-wrap: wrap; }

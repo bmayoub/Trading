@@ -9,7 +9,7 @@ export default function WatchlistPage() {
     <div className="page-shell container">
       <PageTitle
         title="الاستراتيجية 1"
-        subtitle=""
+        subtitle="تحليل الفوتسي اللحظي للأزواج ذات القوة الأعلى فقط."
       />
       <WatchlistPanel strategyKey={STRATEGY_ONE_KEY} />
     </div>
