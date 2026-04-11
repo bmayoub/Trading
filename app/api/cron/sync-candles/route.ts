@@ -8,6 +8,20 @@ export const dynamic = "force-dynamic";
 const DEFAULT_BATCH_SIZE = 7;
 const DEFAULT_BATCH_MINUTES = [1, 2, 3, 4];
 
+function shouldRefreshFotsi(request: NextRequest, batchIndex: number, batchCount: number) {
+  const requested = request.nextUrl.searchParams.get("refreshFotsi");
+
+  if (requested === "1" || requested === "true") {
+    return true;
+  }
+
+  if (requested === "0" || requested === "false") {
+    return false;
+  }
+
+  return batchIndex === batchCount - 1;
+}
+
 function isAuthorized(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) return true;
@@ -55,6 +69,8 @@ export async function GET(request: NextRequest) {
     const batch = getBatchInfo(request, pairs.length);
     const selectedPairs = pairs.slice(batch.offset, batch.offset + batch.batchSize);
     const results = [] as Array<Record<string, unknown>>;
+    let fotsiRefreshed = false;
+    let fotsiRefreshError: string | null = null;
 
     for (const pair of selectedPairs) {
       const seeded = await seedPairIfNeeded(pair.id, pair.symbol);
@@ -62,7 +78,16 @@ export async function GET(request: NextRequest) {
       results.push({ symbol: pair.symbol, seeded, synced });
     }
 
-    await refreshStoredFotsiSeries();
+    if (shouldRefreshFotsi(request, batch.batchIndex, batch.batchCount)) {
+      try {
+        await refreshStoredFotsiSeries();
+        fotsiRefreshed = true;
+      } catch (error) {
+        fotsiRefreshError = error instanceof Error ? error.message : "Unknown error";
+        console.error("FOTSI refresh failed", error);
+      }
+    }
+
     revalidateTag("home-chart-data", "max");
     revalidateTag("chart-pairs", "max");
     revalidateTag("chart-candles", "max");
@@ -77,6 +102,8 @@ export async function GET(request: NextRequest) {
       ok: true,
       count: results.length,
       batch,
+      fotsiRefreshed,
+      fotsiRefreshError,
       results
     });
   } catch (error) {

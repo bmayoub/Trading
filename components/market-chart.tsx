@@ -36,6 +36,7 @@ const DEFAULT_PRICE_PRECISION = 5;
 const JPY_PRICE_PRECISION = 3;
 const MRC_LENGTH = 200;
 const MRC_OUTER_MULTIPLIER = 2.415;
+const CLIENT_FETCH_TIMEOUT_MS = 10000;
 const R2_COLOR = "#ff6b6b";
 const S2_COLOR = "#2dd39a";
 const FOTSI_COLORS: Record<FotsiCurrency, string> = {
@@ -275,7 +276,9 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
     setFotsiError(null);
 
     try {
-      const response = await fetch("/api/chart/fotsi");
+      const response = await fetch("/api/chart/fotsi", {
+        signal: AbortSignal.timeout(CLIENT_FETCH_TIMEOUT_MS)
+      });
       const data = (await response.json()) as FotsiSeriesResponse;
 
       if (!response.ok || !data.ok) {
@@ -284,7 +287,11 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
 
       setFotsiSeries(data.series ?? null);
     } catch (fetchError) {
-      setFotsiError(fetchError instanceof Error ? fetchError.message : "تعذر تحميل مؤشر FOTSI.");
+      if (fetchError instanceof Error && fetchError.name === "TimeoutError") {
+        setFotsiError("انتهت مهلة تحميل مؤشر FOTSI. حاول لاحقًا.");
+      } else {
+        setFotsiError(fetchError instanceof Error ? fetchError.message : "تعذر تحميل مؤشر FOTSI.");
+      }
     } finally {
       setFotsiLoading(false);
     }
@@ -640,8 +647,21 @@ export function MarketChart({ pairs, initialSymbol, initialCandles }: { pairs: s
                     }
 
                     startTransition(async () => {
-                      const response = await fetch(`/api/chart/candles?symbol=${encodeURIComponent(pair)}`);
-                      const data = (await response.json()) as ChartResponse;
+                      let response: Response;
+                      let data: ChartResponse;
+
+                      try {
+                        response = await fetch(`/api/chart/candles?symbol=${encodeURIComponent(pair)}`, {
+                          signal: AbortSignal.timeout(CLIENT_FETCH_TIMEOUT_MS)
+                        });
+                        data = (await response.json()) as ChartResponse;
+                      } catch (fetchError) {
+                        setError(fetchError instanceof Error && fetchError.name === "TimeoutError"
+                          ? "انتهت مهلة تحميل الشارت. حاول مرة أخرى."
+                          : "تعذر تحميل الشارت.");
+                        setLoadingSymbol(null);
+                        return;
+                      }
 
                       if (!response.ok || !data.ok) {
                         setError(data.error ?? "تعذر تحميل الشارت.");

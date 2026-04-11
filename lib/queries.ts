@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { withDbFallback } from "@/lib/db";
-import { sortPairsByCurrencyPriority } from "@/lib/defaults";
+import { DEFAULT_PAIRS, sortPairsByCurrencyPriority } from "@/lib/defaults";
 import type { Candle } from "@/lib/types";
 
 const CHART_REVALIDATE_SECONDS = 3600;
@@ -25,6 +25,8 @@ export async function getDashboardSummary() {
     totalCandles: 0,
     activeAlerts: 0,
     lastSync: null as string | null
+  }, {
+    label: "dashboard-summary"
   });
 }
 
@@ -34,7 +36,9 @@ export async function getAlertRules() {
     from alert_rules ar
     join pairs p on p.id = ar.pair_id
     order by ar.id desc
-  `, [] as { id: number; name: string; symbol: string; condition_type: string; is_active: boolean }[]);
+  `, [] as { id: number; name: string; symbol: string; condition_type: string; is_active: boolean }[], {
+    label: "alert-rules"
+  });
 }
 
 export async function getRecentAlertEvents() {
@@ -44,7 +48,9 @@ export async function getRecentAlertEvents() {
     join pairs p on p.id = ae.pair_id
     order by ae.created_at desc
     limit 20
-  `, [] as { id: number; symbol: string; message: string; created_at: string }[]);
+  `, [] as { id: number; symbol: string; message: string; created_at: string }[], {
+    label: "recent-alert-events"
+  });
 }
 
 export async function getChartPairs() {
@@ -57,7 +63,9 @@ export async function getChartPairs() {
       `;
 
       return sortPairsByCurrencyPriority(rows).map((row) => row.symbol);
-    }, [] as string[]),
+    }, DEFAULT_PAIRS, {
+      label: "chart-pairs"
+    }),
     ["chart-pairs"],
     {
       revalidate: CHART_REVALIDATE_SECONDS,
@@ -84,7 +92,9 @@ export async function getCandlesBySymbol(symbol: string, limit = 500): Promise<C
       `;
 
       return rows;
-    }, [] as Candle[]),
+    }, [] as Candle[], {
+      label: `candles-by-symbol:${symbol}`
+    }),
     ["chart-candles", symbol, String(limit)],
     {
       revalidate: CHART_REVALIDATE_SECONDS,

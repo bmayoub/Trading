@@ -18,6 +18,11 @@ type FotsiLabel = {
   top: number;
 };
 
+function getSeriesPoints(series: FotsiSeries, currency: FotsiCurrency) {
+  const points = series?.[currency];
+  return Array.isArray(points) ? points : [];
+}
+
 function toChartPoints(series: FotsiSeriesPoint[]): LineData<Time>[] {
   return series.map((point) => ({
     time: Math.floor(new Date(point.time).getTime() / 1000) as UTCTimestamp,
@@ -26,6 +31,7 @@ function toChartPoints(series: FotsiSeriesPoint[]): LineData<Time>[] {
 }
 
 export function FotsiChart({ series, colors, order }: FotsiChartProps) {
+  const safeOrder = useMemo(() => (Array.isArray(order) ? order : []), [order]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const currencySeriesRefs = useRef<Partial<Record<FotsiCurrency, ISeriesApi<"Line">>>>({});
@@ -33,14 +39,14 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
   const resizeFrameRef = useRef(0);
   const [labels, setLabels] = useState<FotsiLabel[]>([]);
   const chartData = useMemo(
-    () => order.map((currency) => ({
+    () => safeOrder.map((currency) => ({
       currency,
       color: colors[currency],
-      points: toChartPoints(series[currency]),
-      latestValue: series[currency].at(-1)?.value ?? null,
-      previousValue: series[currency].at(-2)?.value ?? null
+      points: toChartPoints(getSeriesPoints(series, currency)),
+      latestValue: getSeriesPoints(series, currency).at(-1)?.value ?? null,
+      previousValue: getSeriesPoints(series, currency).at(-2)?.value ?? null
     })),
-    [colors, order, series]
+    [colors, safeOrder, series]
   );
   const summaryItems = useMemo(
     () => chartData.map((item) => ({
@@ -115,7 +121,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
 
     chartRef.current = chart;
     currencySeriesRefs.current = Object.fromEntries(
-      order.map((currency) => [
+      safeOrder.map((currency) => [
         currency,
         chart.addSeries(LineSeries, {
           color: colors[currency],
@@ -163,7 +169,7 @@ export function FotsiChart({ series, colors, order }: FotsiChartProps) {
       levelSeriesRefs.current = {};
       setLabels([]);
     };
-  }, [colors, order]);
+  }, [colors, safeOrder]);
 
   useEffect(() => {
     if (!chartRef.current) {

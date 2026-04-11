@@ -228,6 +228,7 @@ async function loadCandlesForFotsi(db: NonNullable<ReturnType<typeof ensureDb>>,
       from candles c
       join pairs p on p.id = c.pair_id
       where p.is_active = true
+        and p.symbol in ${db(FOTSI_REQUIRED_PAIRS)}
     )
     select
       symbol,
@@ -325,7 +326,9 @@ export async function getFotsiSeries(limit = 500) {
     }
 
     return refreshStoredFotsiSeries(limit);
-  }, EMPTY_SERIES);
+  }, EMPTY_SERIES, {
+    label: "fotsi-series"
+  });
 }
 
 export async function getFotsiCurrencySeries(currency: FotsiCurrency, limit = 300) {
@@ -407,5 +410,7 @@ export async function getFotsiCurrencySeries(currency: FotsiCurrency, limit = 30
     }
 
     return buildCurrencySeriesFromAligned(currency, times, aligned, 0, 25, 15);
-  }, [] as FotsiSeriesPoint[]);
+  }, [] as FotsiSeriesPoint[], {
+    label: `fotsi-currency:${currency}`
+  });
 }
