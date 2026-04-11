@@ -3,6 +3,7 @@ export const revalidate = 3600;
 import { PageTitle } from "@/components/header";
 import { ImportForm } from "@/app/import/import-form";
 import { StrategyPairsSettings } from "@/components/strategy-pairs-settings";
+import { TelegramTestButton } from "@/components/telegram-test-button";
 import { DEFAULT_PAIRS } from "@/lib/defaults";
 import { STRATEGY_ONE_KEY, STRATEGY_ONE_NAME } from "@/lib/strategy";
 
@@ -16,6 +17,11 @@ export default function SettingsPage() {
         allPairs={DEFAULT_PAIRS}
         initialPairs={[]}
       />
+      <div className="card" style={{ marginTop: 16 }}>
+        <h2>اختبار إشعارات تلغرام</h2>
+        <p className="muted">استخدم هذا الزر للتأكد من أن TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID مضبوطان بشكل صحيح.</p>
+        <TelegramTestButton />
+      </div>
       <div className="card" style={{ marginTop: 16 }}>
         <h2>استيراد بيانات MT5</h2>
         <p className="muted">إذا كان لديك ملف CSV من MT5، يمكنك رفعه مباشرة من هنا بدون الانتقال إلى صفحة مستقلة.</p>

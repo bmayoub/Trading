@@ -137,7 +137,7 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
         const payload = (await response.json()) as { ok: boolean; error?: string; data?: WatchlistData };
 
         if (!response.ok || !payload.ok || !payload.data) {
-          throw new Error(payload.error ?? "تعذر تحميل قائمة المراقبة.");
+          throw new Error(payload.error ?? "تعذر تحميل قائمة المراقبة من قاعدة البيانات.");
         }
 
         if (!isMounted) {
@@ -150,7 +150,9 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
           return;
         }
 
-        setError(loadError instanceof Error ? loadError.message : "تعذر تحميل قائمة المراقبة.");
+        setError(loadError instanceof Error
+          ? loadError.message
+          : "تعذر تحميل قائمة المراقبة من قاعدة البيانات. قد تكون الأزواج المحفوظة موجودة لكن القراءة فشلت مؤقتًا.");
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -170,7 +172,15 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
   }
 
   if (error) {
-    return <div className="card"><div className="notice danger">{error}</div></div>;
+    return (
+      <div className="card">
+        <div className="notice danger">
+          <strong>تعذر تحميل قائمة المراقبة.</strong>
+          <div style={{ marginTop: 6 }}>{error}</div>
+          <div style={{ marginTop: 6 }}>هذا لا يعني أن أزواج الاستراتيجية حُذفت، بل قد يكون الاتصال بقاعدة البيانات أو تحميل البيانات فشل مؤقتًا.</div>
+        </div>
+      </div>
+    );
   }
 
   if (!data) {
@@ -225,6 +235,9 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
   });
   const filteredSnapshots = strongestSnapshots.filter((snapshot) => visibleCurrencyStates[getVisibleState(snapshot.state)]);
 
+  // إشارات الاستراتيجية 1
+  const fotsiSignals = (data as any).fotsiSignals || [];
+
   return (
     <div className="watchlist-shell">
       <div className="watchlist-summary-grid">
@@ -254,16 +267,11 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
 
             return (
               <article key={symbol} className="watchlist-strip">
-                <div className="watchlist-strip-icon">{biasMeta.glyph}</div>
+                <div className="watchlist-strip-icon">{pairStrength}</div>
                 <div className="watchlist-strip-main">
                   <div className={`watchlist-strip-badge ${biasMeta.accentClass}`}>
                     <strong className={biasMeta.accentClass}>{biasMeta.label}</strong>
                   </div>
-
-                  <div className="watchlist-strip-stat">
-                    <span className="value">{pairStrength}</span>
-                  </div>
-
                   <div className="watchlist-strip-strength">
                     <div className="watchlist-strip-meter">
                       <span className={`watchlist-strip-fill ${biasMeta.accentClass} active`} style={{ width: getPairStrengthWidth(pairStrength) }} />
@@ -333,6 +341,57 @@ export function WatchlistPanel({ strategyKey }: WatchlistPanelProps) {
           })}
         </div>
       </section>
+
+      {fotsiSignals.length > 0 && (
+        <section className="watchlist-signals-list" style={{display: 'flex', flexDirection: 'column', gap: 16}}>
+          <h2>إشارات الاستراتيجية 1 (FOTSI)</h2>
+          {fotsiSignals.map((signal: any, idx: number) => {
+            // ألوان غامقة أكثر
+            const isBuy = signal.action === "BUY";
+            const pairBgColor = isBuy ? "#008c3a" : "#b3001b";
+            const textColor = "#fff";
+            // فصل الساعة والتاريخ
+            let hour = '--';
+            let date = '--';
+            if (signal.hour) {
+              const [d, t] = signal.hour.split('T');
+              date = d;
+              hour = t ? t.replace(/^\s*/, '') : '--';
+            }
+            return (
+              <article key={idx} className="watchlist-strip" style={{background: 'var(--bg-2)', color: textColor, minHeight: 56, alignItems: 'center', gridTemplateColumns: '100px 180px 1fr 180px 140px'}}>
+                {/* أقصى اليمين: قوة الزوج */}
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minWidth: 90}}>
+                  <span style={{fontSize: 40, fontWeight: 900, color: pairBgColor, width: '100%', textAlign: 'center'}}>{signal.strength ?? '--'}</span>
+                </div>
+                {/* يمين: معلومات base */}
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 8, fontSize: 20}}>
+                  {/* تم حذف سطر Base حسب طلب المستخدم */}
+                  <div style={{fontSize: 22}}>Fotsi: <b>{signal.baseFotsi ?? '--'}</b></div>
+                  <div style={{fontSize: 22}}>Δ: <b style={{color: signal.baseDelta === "Pos" ? '#008c3a' : signal.baseDelta === "Neg" ? '#b3001b' : '#adaaaa', fontSize: 22}}>{signal.baseFotsiDelta ?? '--'}</b></div>
+                  {/* تم حذف سطر الحالة حسب طلب المستخدم */}
+                </div>
+                {/* الوسط: اسم الزوج */}
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                  <div style={{fontSize: 32, fontWeight: 900, color: textColor, background: pairBgColor, borderRadius: 8, padding: '2px 24px', marginBottom: 4}}>{signal.symbol}</div>
+                </div>
+                {/* يسار: معلومات quote */}
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: 8, fontSize: 20}}>
+                  {/* تم حذف سطر Quote حسب طلب المستخدم */}
+                  <div style={{fontSize: 22}}>Fotsi: <b>{signal.quoteFotsi ?? '--'}</b></div>
+                  <div style={{fontSize: 22}}>Δ: <b style={{color: signal.quoteDelta === "Pos" ? '#008c3a' : signal.quoteDelta === "Neg" ? '#b3001b' : '#adaaaa', fontSize: 22}}>{signal.quoteFotsiDelta ?? '--'}</b></div>
+                  {/* تم حذف سطر الحالة حسب طلب المستخدم */}
+                </div>
+                {/* أقصى اليسار: الساعة بالأعلى والتاريخ بالأسفل */}
+                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 0, minWidth: 70, height: '100%'}}>
+                  <div style={{fontSize: 28, fontWeight: 900, color: '#fff', margin: '8px 0 2px 0'}}>{hour}</div>
+                  <div style={{fontSize: 13, fontWeight: 500, color: '#adaaaa', margin: 0}}>{date}</div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }

@@ -7,10 +7,7 @@ import { STRATEGY_ONE_KEY } from "@/lib/strategy";
 export default function WatchlistPage() {
   return (
     <div className="page-shell container">
-      <PageTitle
-        title="الاستراتيجية 1"
-        subtitle="تحليل الفوتسي اللحظي للأزواج ذات القوة الأعلى فقط."
-      />
+      <PageTitle title="الاستراتيجية 1" />
       <WatchlistPanel strategyKey={STRATEGY_ONE_KEY} />
     </div>
   );

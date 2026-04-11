@@ -1,23 +1,12 @@
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
-import { getStrategyPairSymbols, saveStrategyPairSymbols, STRATEGY_ONE_KEY } from "@/lib/strategy";
-
-async function getCachedStrategyPairSymbols(strategyKey: string) {
-  return unstable_cache(
-    () => getStrategyPairSymbols(strategyKey),
-    ["strategy-pairs", strategyKey],
-    {
-      revalidate: 3600,
-      tags: [`strategy-pairs:${strategyKey}`]
-    }
-  )();
-}
+import { getStrategyPairSymbolsStrict, saveStrategyPairSymbols, STRATEGY_ONE_KEY } from "@/lib/strategy";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const strategyKey = searchParams.get("strategyKey") ?? STRATEGY_ONE_KEY;
-    const symbols = await getCachedStrategyPairSymbols(strategyKey);
+    const symbols = await getStrategyPairSymbolsStrict(strategyKey);
 
     return NextResponse.json({ ok: true, symbols });
   } catch (error) {

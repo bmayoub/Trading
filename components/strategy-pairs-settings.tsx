@@ -49,7 +49,7 @@ export function StrategyPairsSettings({ strategyLabel, strategyKey, allPairs, in
         const data = (await response.json()) as { ok: boolean; error?: string; symbols?: string[] };
 
         if (!response.ok || !data.ok) {
-          throw new Error(data.error ?? "تعذر تحميل أزواج الاستراتيجية.");
+          throw new Error(data.error ?? "تعذر تحميل أزواج الاستراتيجية من قاعدة البيانات.");
         }
 
         if (!isMounted) {
@@ -62,7 +62,9 @@ export function StrategyPairsSettings({ strategyLabel, strategyKey, allPairs, in
           return;
         }
 
-        setError(loadError instanceof Error ? loadError.message : "تعذر تحميل أزواج الاستراتيجية.");
+        setError(loadError instanceof Error
+          ? loadError.message
+          : "تعذر تحميل أزواج الاستراتيجية من قاعدة البيانات. قد تكون الأزواج المحفوظة موجودة، لكن القراءة فشلت مؤقتًا.");
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -97,13 +99,13 @@ export function StrategyPairsSettings({ strategyLabel, strategyKey, allPairs, in
       const data = (await response.json()) as { ok: boolean; error?: string; symbols?: string[] };
 
       if (!response.ok || !data.ok) {
-        throw new Error(data.error ?? "تعذر حفظ أزواج الاستراتيجية.");
+        throw new Error(data.error ?? "تعذر حفظ أزواج الاستراتيجية في قاعدة البيانات.");
       }
 
       setSelectedPairs(data.symbols ?? selectedPairs);
       setMessage("تم حفظ أزواج الاستراتيجية الأولى.");
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "تعذر حفظ أزواج الاستراتيجية.");
+      setError(saveError instanceof Error ? saveError.message : "تعذر حفظ أزواج الاستراتيجية في قاعدة البيانات.");
     } finally {
       setIsSaving(false);
     }
@@ -129,7 +131,13 @@ export function StrategyPairsSettings({ strategyLabel, strategyKey, allPairs, in
 
       {isLoading ? <div className="notice" style={{ marginTop: 12 }}>جارٍ تحميل أزواج الاستراتيجية الحالية...</div> : null}
       {message ? <div className="notice success" style={{ marginTop: 12 }}>{message}</div> : null}
-      {error ? <div className="notice danger" style={{ marginTop: 12 }}>{error}</div> : null}
+      {error ? (
+        <div className="notice danger" style={{ marginTop: 12 }}>
+          <strong>تعذر تحميل أو حفظ أزواج الاستراتيجية.</strong>
+          <div style={{ marginTop: 6 }}>{error}</div>
+          <div style={{ marginTop: 6 }}>إذا ظهرت لك القائمة فارغة بعد انقطاع مؤقت، فهذا لا يعني أن الأزواج انحذفت بالضرورة.</div>
+        </div>
+      ) : null}
 
       <div className="strategy-pair-grid">
         {groupedPairs.map((row) => (

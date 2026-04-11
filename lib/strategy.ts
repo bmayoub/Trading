@@ -1,4 +1,4 @@
-import { withDbFallback } from "@/lib/db";
+import { ensureDb, withDbFallback } from "@/lib/db";
 import { DEFAULT_PAIRS, sortPairsByCurrencyPriority } from "@/lib/defaults";
 import { getFotsiSeries, type FotsiCurrency } from "@/lib/fotsi";
 
@@ -43,7 +43,20 @@ function normalizePairSelection(symbols: string[], allowedPairs: string[]) {
   return sortPairsByCurrencyPriority([...new Set(symbols)].filter((symbol) => allowedSet.has(symbol)));
 }
 
-function classifyCurrency(value: number | null): StrategyCurrencyState {
+async function queryStrategyPairSymbols(db: ReturnType<typeof ensureDb>, strategyKey: string) {
+  const rows = await db<{ symbol: string }[]>`
+    select p.symbol
+    from strategy_pairs sp
+    join strategies s on s.id = sp.strategy_id
+    join pairs p on p.id = sp.pair_id
+    where s.strategy_key = ${strategyKey}
+    order by p.symbol asc
+  `;
+
+  return sortPairsByCurrencyPriority(rows.map((row) => row.symbol));
+}
+
+export function classifyCurrency(value: number | null): StrategyCurrencyState {
   if (value === null) {
     return "unclassified";
   }
@@ -85,17 +98,13 @@ export async function getSelectablePairs() {
 
 export async function getStrategyPairSymbols(strategyKey = STRATEGY_ONE_KEY) {
   return withDbFallback(async (db) => {
-    const rows = await db<{ symbol: string }[]>`
-      select p.symbol
-      from strategy_pairs sp
-      join strategies s on s.id = sp.strategy_id
-      join pairs p on p.id = sp.pair_id
-      where s.strategy_key = ${strategyKey}
-      order by p.symbol asc
-    `;
-
-    return sortPairsByCurrencyPriority(rows.map((row) => row.symbol));
+    return queryStrategyPairSymbols(db, strategyKey);
   }, [] as string[]);
+}
+
+export async function getStrategyPairSymbolsStrict(strategyKey = STRATEGY_ONE_KEY) {
+  const db = ensureDb();
+  return queryStrategyPairSymbols(db, strategyKey);
 }
 
 export async function saveStrategyPairSymbols(
@@ -156,7 +165,7 @@ export async function saveStrategyPairSymbols(
 
 export async function getStrategyWatchlistData(strategyKey = STRATEGY_ONE_KEY): Promise<StrategyWatchlistData> {
   const [selectedPairs, fotsiSeries] = await Promise.all([
-    getStrategyPairSymbols(strategyKey),
+    getStrategyPairSymbolsStrict(strategyKey),
     getFotsiSeries(300)
   ]);
 

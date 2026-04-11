@@ -226,24 +226,33 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
   transform: translateX(-4px);
   background: var(--card);
 }
-.watchlist-strip-icon,
-.watchlist-strip-symbol {
+.watchlist-strip-icon {
+  color: #fff;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px #000a, 0 1px 0 #222b;
   display: grid;
   place-items: center;
   background: var(--card-strong);
-}
-.watchlist-strip-icon {
-  color: var(--muted);
-  font-size: 24px;
+  height: 100%;
 }
 .watchlist-strip-symbol {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.02em;
   direction: ltr;
+  text-shadow: 0 2px 12px #000a, 0 1px 0 #222b;
+  padding: 12px 0 12px 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 .watchlist-strip-main {
   display: grid;
-  grid-template-columns: 220px 120px 1fr;
+  grid-template-columns: 220px 1fr;
   align-items: center;
   gap: 18px;
   padding: 0 22px;
@@ -295,15 +304,21 @@ th, td { text-align: start; padding: 12px; border-bottom: 1px solid var(--border
 }
 .watchlist-strip-meter {
   display: flex;
-  height: 10px;
+  height: 32px;
+  min-height: 32px;
   border-radius: 999px;
   overflow: hidden;
   background: #20201f;
+  width: 100%;
+  min-width: 100%;
+  align-items: stretch;
 }
 .watchlist-strip-fill {
   display: block;
   height: 100%;
+  min-height: 100%;
   opacity: 0.32;
+  border-radius: 999px;
 }
 .watchlist-strip-fill.active {
   opacity: 1;
